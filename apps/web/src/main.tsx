@@ -1,5 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+// Import UI package's global styles first
+import "@vernisai/ui/styles/global.css";
 import "./style.css";
 import typescriptLogo from "/typescript.svg";
 import ChatDemo from "./pages/ChatDemo";
