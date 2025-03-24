@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { Avatar } from "../ui/avatar";
@@ -23,7 +23,9 @@ export const AgentCard: React.FC<AgentCardProps> = ({
   icon: Icon,
   onStartConversation,
 }) => {
-  // Choose a random background color for the capabilities
+  const [imageError, setImageError] = useState(false);
+
+  // Choose a color for the capabilities based on index
   const getCapabilityColor = (index: number) => {
     const colors = [
       "bg-blue-100 text-blue-800",
@@ -38,6 +40,14 @@ export const AgentCard: React.FC<AgentCardProps> = ({
   // Check if Icon is provided and it's a valid component
   const hasValidIcon = Icon !== undefined;
 
+  // Get the first letter of the agent name for fallback
+  const nameInitial = name.charAt(0).toUpperCase();
+
+  // Handle image loading error
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   return (
     <Card className="h-full flex flex-col group hover:shadow-md transition-all duration-200 border border-border-default hover:border-primary/20">
       <CardContent className="p-6 flex-grow relative">
@@ -47,16 +57,19 @@ export const AgentCard: React.FC<AgentCardProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <div className="relative">
             <Avatar className="h-12 w-12 bg-primary/10 flex items-center justify-center">
-              {avatarUrl ? (
+              {avatarUrl && !imageError ? (
                 <img
                   src={avatarUrl}
                   alt={name}
                   className="h-full w-full object-cover"
+                  onError={handleImageError}
                 />
               ) : hasValidIcon ? (
                 <Icon className="h-6 w-6 text-primary" />
               ) : (
-                <RocketIcon className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-center h-full w-full text-primary font-medium text-lg">
+                  {nameInitial}
+                </div>
               )}
             </Avatar>
             <div className="absolute -bottom-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full bg-primary text-white text-xs">

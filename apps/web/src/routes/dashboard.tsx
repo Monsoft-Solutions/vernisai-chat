@@ -11,13 +11,7 @@ import {
   mockAgents,
   mockUsageData,
 } from "../mock/dashboardData";
-import {
-  PlusIcon,
-  Search,
-  ArrowRightIcon,
-  UserPlusIcon,
-  Settings2Icon,
-} from "lucide-react";
+import { PlusIcon, Search, ArrowRightIcon } from "lucide-react";
 import { useState } from "react";
 
 // Define the Dashboard route
@@ -37,7 +31,7 @@ function Dashboard() {
           conv.model.toLowerCase().includes(conversationFilter),
         );
 
-  // Filter agents based on selected capabilities
+  // Enhanced agent filtering with case-insensitive matching
   const filteredAgents =
     agentFilter === "all"
       ? mockAgents
@@ -70,7 +64,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Organization Information */}
         <div className="md:col-span-1">
           <OrganizationInfoCard
@@ -82,25 +76,6 @@ function Dashboard() {
           />
 
           {/* Quick Actions */}
-          <div className="mt-4 bg-white rounded-lg border border-border-default p-4">
-            <h3 className="font-medium mb-3">Quick Actions</h3>
-            <div className="space-y-2">
-              <button className="w-full flex items-center justify-between text-sm p-2 hover:bg-background-secondary rounded transition-colors">
-                <span className="flex items-center gap-2 min-w-0 flex-shrink overflow-hidden">
-                  <UserPlusIcon size={16} className="flex-shrink-0" />
-                  <span className="truncate">Invite Team Members</span>
-                </span>
-                <ArrowRightIcon size={14} className="flex-shrink-0 ml-2" />
-              </button>
-              <button className="w-full flex items-center justify-between text-sm p-2 hover:bg-background-secondary rounded transition-colors">
-                <span className="flex items-center gap-2 min-w-0 flex-shrink overflow-hidden">
-                  <Settings2Icon size={16} className="flex-shrink-0" />
-                  <span className="truncate">Organization Settings</span>
-                </span>
-                <ArrowRightIcon size={14} className="flex-shrink-0 ml-2" />
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Recent Conversations */}
@@ -157,7 +132,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-20">
         {/* Available Agents */}
         <div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
@@ -169,10 +144,19 @@ function Dashboard() {
                 onChange={(e) => setAgentFilter(e.target.value)}
               >
                 <option value="all">All Capabilities</option>
-                <option value="content">Content Creation</option>
-                <option value="data">Data Analysis</option>
-                <option value="code">Code</option>
-                <option value="support">Support</option>
+                <option value="content creation">Content Creation</option>
+                <option value="campaign planning">Campaign Planning</option>
+                <option value="audience analysis">Audience Analysis</option>
+                <option value="data analysis">Data Analysis</option>
+                <option value="chart generation">Chart Generation</option>
+                <option value="trend identification">
+                  Trend Identification
+                </option>
+                <option value="code generation">Code Generation</option>
+                <option value="code review">Code Review</option>
+                <option value="debugging">Debugging</option>
+                <option value="query resolution">Query Resolution</option>
+                <option value="ticket management">Ticket Management</option>
               </select>
             </div>
           </div>

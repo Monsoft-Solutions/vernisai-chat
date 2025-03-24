@@ -1,6 +1,19 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Users, Crown, HelpCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import {
+  Users,
+  Crown,
+  HelpCircle,
+  ArrowRightIcon,
+  Settings2Icon,
+  UserPlusIcon,
+} from "lucide-react";
 
 type OrganizationInfoCardProps = {
   name: string;
@@ -160,6 +173,26 @@ export const OrganizationInfoCard: React.FC<OrganizationInfoCardProps> = ({
           </div>
         </div>
       </CardContent>
+      <CardFooter className="p-0 border-t border-border-default">
+        <div className="bg-white rounded-lg  p-4 pl-2 w-full">
+          <div className="space-y-2">
+            <button className="w-full flex items-center justify-between text-sm p-2 hover:bg-background-secondary rounded transition-colors">
+              <span className="flex items-center gap-2 min-w-0 flex-shrink overflow-hidden">
+                <UserPlusIcon size={16} className="flex-shrink-0" />
+                <span className="truncate">Invite Team Members</span>
+              </span>
+              <ArrowRightIcon size={14} className="flex-shrink-0 ml-2" />
+            </button>
+            <button className="w-full flex items-center justify-between text-sm p-2 hover:bg-background-secondary rounded transition-colors">
+              <span className="flex items-center gap-2 min-w-0 flex-shrink overflow-hidden">
+                <Settings2Icon size={16} className="flex-shrink-0" />
+                <span className="truncate">Organization Settings</span>
+              </span>
+              <ArrowRightIcon size={14} className="flex-shrink-0 ml-2" />
+            </button>
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   );
 };
