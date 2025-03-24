@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -13,9 +13,9 @@
     "prettier": "^3.5.3",
     "turbo": "^2.4.4"
   },
-  "name": "monsoft/vernisai-chat",
+  "name": "@monsoft/vernisai-chat",
   "version": "0.0.1",
-  "description": "Vernisai Chat",
+  "description": "Vernisai Chat - AI-powered chat and intelligent agents",
   "author": "Monsoft Solutions <https://monsoftsolutions.com>",
   "license": "MIT",
   "packageManager": "npm@10.9.2",
