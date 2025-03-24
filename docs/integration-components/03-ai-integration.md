@@ -58,15 +58,15 @@ This document outlines the integration of AI capabilities into the Express.js AP
 
 ```javascript
 // packages/ai-core/src/providers/index.js
-const { OpenAIProvider } = require('./openai');
-const { AnthropicProvider } = require('./anthropic');
+const { OpenAIProvider } = require("./openai");
+const { AnthropicProvider } = require("./anthropic");
 
 class AIProviderFactory {
-  static getProvider(type = 'openai', options = {}) {
+  static getProvider(type = "openai", options = {}) {
     switch (type.toLowerCase()) {
-      case 'openai':
+      case "openai":
         return new OpenAIProvider(options);
-      case 'anthropic':
+      case "anthropic":
         return new AnthropicProvider(options);
       default:
         throw new Error(`Unsupported AI provider: ${type}`);
@@ -81,15 +81,15 @@ module.exports = { AIProviderFactory };
 
 ```javascript
 // packages/ai-core/src/providers/openai.js
-const { OpenAI } = require('openai');
-const { streamToResponse } = require('../utils/streaming');
+const { OpenAI } = require("openai");
+const { streamToResponse } = require("../utils/streaming");
 
 class OpenAIProvider {
   constructor(options = {}) {
     this.client = new OpenAI({
-      apiKey: options.apiKey || process.env.OPENAI_API_KEY
+      apiKey: options.apiKey || process.env.OPENAI_API_KEY,
     });
-    this.defaultModel = options.model || 'gpt-4o';
+    this.defaultModel = options.model || "gpt-4o";
   }
 
   async generateCompletion(messages, options = {}) {
@@ -104,17 +104,17 @@ class OpenAIProvider {
         max_tokens: options.maxTokens || 1000,
         top_p: options.topP || 1,
         frequency_penalty: options.frequencyPenalty || 0,
-        presence_penalty: options.presencePenalty || 0
+        presence_penalty: options.presencePenalty || 0,
       });
 
       return {
         text: response.choices[0].message.content,
         model: response.model,
         usage: response.usage,
-        provider: 'openai'
+        provider: "openai",
       };
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error("OpenAI API error:", error);
       throw new Error(`OpenAI API error: ${error.message}`);
     }
   }
@@ -132,12 +132,12 @@ class OpenAIProvider {
         top_p: options.topP || 1,
         frequency_penalty: options.frequencyPenalty || 0,
         presence_penalty: options.presencePenalty || 0,
-        stream: true
+        stream: true,
       });
 
       return stream;
     } catch (error) {
-      console.error('OpenAI API streaming error:', error);
+      console.error("OpenAI API streaming error:", error);
       throw new Error(`OpenAI API streaming error: ${error.message}`);
     }
   }
@@ -146,9 +146,9 @@ class OpenAIProvider {
   async streamToResponse(messages, res, options = {}) {
     try {
       const stream = await this.generateCompletionStream(messages, options);
-      return streamToResponse(stream, res, 'openai');
+      return streamToResponse(stream, res, "openai");
     } catch (error) {
-      console.error('Failed to stream OpenAI response:', error);
+      console.error("Failed to stream OpenAI response:", error);
       res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
       res.end();
     }
@@ -162,26 +162,26 @@ module.exports = { OpenAIProvider };
 
 ```javascript
 // packages/ai-core/src/providers/anthropic.js
-const Anthropic = require('@anthropic-ai/sdk');
-const { streamToResponse } = require('../utils/streaming');
+const Anthropic = require("@anthropic-ai/sdk");
+const { streamToResponse } = require("../utils/streaming");
 
 class AnthropicProvider {
   constructor(options = {}) {
     this.client = new Anthropic({
-      apiKey: options.apiKey || process.env.ANTHROPIC_API_KEY
+      apiKey: options.apiKey || process.env.ANTHROPIC_API_KEY,
     });
-    this.defaultModel = options.model || 'claude-3-opus-20240229';
+    this.defaultModel = options.model || "claude-3-opus-20240229";
   }
 
   // Convert standard chat format to Anthropic format
   _formatMessages(messages) {
     return messages.map((msg) => {
-      if (msg.role === 'user') {
-        return { role: 'user', content: msg.content };
-      } else if (msg.role === 'assistant') {
-        return { role: 'assistant', content: msg.content };
-      } else if (msg.role === 'system') {
-        return { role: 'system', content: msg.content };
+      if (msg.role === "user") {
+        return { role: "user", content: msg.content };
+      } else if (msg.role === "assistant") {
+        return { role: "assistant", content: msg.content };
+      } else if (msg.role === "system") {
+        return { role: "system", content: msg.content };
       }
       return msg; // Pass through any other formats
     });
@@ -197,7 +197,7 @@ class AnthropicProvider {
         messages: formattedMessages,
         max_tokens: options.maxTokens || 1000,
         temperature: options.temperature || 0.7,
-        top_p: options.topP || 1
+        top_p: options.topP || 1,
       });
 
       return {
@@ -205,12 +205,12 @@ class AnthropicProvider {
         model: response.model,
         usage: {
           input_tokens: response.usage.input_tokens,
-          output_tokens: response.usage.output_tokens
+          output_tokens: response.usage.output_tokens,
         },
-        provider: 'anthropic'
+        provider: "anthropic",
       };
     } catch (error) {
-      console.error('Anthropic API error:', error);
+      console.error("Anthropic API error:", error);
       throw new Error(`Anthropic API error: ${error.message}`);
     }
   }
@@ -226,12 +226,12 @@ class AnthropicProvider {
         max_tokens: options.maxTokens || 1000,
         temperature: options.temperature || 0.7,
         top_p: options.topP || 1,
-        stream: true
+        stream: true,
       });
 
       return stream;
     } catch (error) {
-      console.error('Anthropic API streaming error:', error);
+      console.error("Anthropic API streaming error:", error);
       throw new Error(`Anthropic API streaming error: ${error.message}`);
     }
   }
@@ -240,9 +240,9 @@ class AnthropicProvider {
   async streamToResponse(messages, res, options = {}) {
     try {
       const stream = await this.generateCompletionStream(messages, options);
-      return streamToResponse(stream, res, 'anthropic');
+      return streamToResponse(stream, res, "anthropic");
     } catch (error) {
-      console.error('Failed to stream Anthropic response:', error);
+      console.error("Failed to stream Anthropic response:", error);
       res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
       res.end();
     }
@@ -256,21 +256,21 @@ module.exports = { AnthropicProvider };
 
 ```javascript
 // packages/ai-core/src/utils/streaming.js
-const { EventEmitter } = require('events');
+const { EventEmitter } = require("events");
 
 // Process streaming responses based on provider
-function streamToResponse(stream, res, provider = 'openai') {
+function streamToResponse(stream, res, provider = "openai") {
   // Set headers for SSE
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
   // Full response for storage after streaming completes
-  let fullResponse = '';
+  let fullResponse = "";
 
-  if (provider === 'openai') {
+  if (provider === "openai") {
     // Process OpenAI streaming format
-    stream.on('chunk', (chunk) => {
+    stream.on("chunk", (chunk) => {
       if (chunk.choices?.[0]?.delta?.content) {
         const content = chunk.choices[0].delta.content;
         fullResponse += content;
@@ -278,38 +278,38 @@ function streamToResponse(stream, res, provider = 'openai') {
       }
     });
 
-    stream.on('end', () => {
+    stream.on("end", () => {
       res.write(`data: [DONE]\n\n`);
       res.end();
     });
 
-    stream.on('error', (error) => {
-      console.error('Stream error:', error);
+    stream.on("error", (error) => {
+      console.error("Stream error:", error);
       res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
       res.end();
     });
-  } else if (provider === 'anthropic') {
+  } else if (provider === "anthropic") {
     // Process Anthropic streaming format
-    stream.on('text', (text) => {
+    stream.on("text", (text) => {
       fullResponse += text;
       res.write(`data: ${JSON.stringify({ text })}\n\n`);
     });
 
-    stream.on('end', () => {
+    stream.on("end", () => {
       res.write(`data: [DONE]\n\n`);
       res.end();
     });
 
-    stream.on('error', (error) => {
-      console.error('Stream error:', error);
+    stream.on("error", (error) => {
+      console.error("Stream error:", error);
       res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
       res.end();
     });
   }
 
   // Handle client disconnect
-  req.on('close', () => {
-    if (stream.controller && typeof stream.controller.abort === 'function') {
+  req.on("close", () => {
+    if (stream.controller && typeof stream.controller.abort === "function") {
       stream.controller.abort();
     }
   });
@@ -326,93 +326,103 @@ module.exports = { streamToResponse };
 
 ```javascript
 // apps/api/src/controllers/chat.js
-const { AIProviderFactory } = require('@/packages/ai-core');
-const { Redis } = require('@upstash/redis');
-const conversationRepository = require('@/packages/database/repositories/conversationRepository');
-const messageRepository = require('@/packages/database/repositories/messageRepository');
+const { AIProviderFactory } = require("@/packages/ai-core");
+const { Redis } = require("@upstash/redis");
+const conversationRepository = require("@/packages/database/repositories/conversationRepository");
+const messageRepository = require("@/packages/database/repositories/messageRepository");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,
-  token: process.env.UPSTASH_REDIS_TOKEN
+  token: process.env.UPSTASH_REDIS_TOKEN,
 });
 
 // Handle streaming chat requests
 async function handleChatStream(req, res) {
   const { conversationId } = req.params;
-  const { message, provider = 'openai', options = {} } = req.body;
+  const { message, provider = "openai", options = {} } = req.body;
   const userId = req.user.id;
 
   try {
     // Verify user has access to this conversation
-    const conversation = await conversationRepository.findByIdAndUser(conversationId, userId);
+    const conversation = await conversationRepository.findByIdAndUser(
+      conversationId,
+      userId,
+    );
     if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
+      return res.status(404).json({ error: "Conversation not found" });
     }
 
     // Save user message to database
     const userMessage = await messageRepository.create({
       conversationId,
-      role: 'user',
+      role: "user",
       content: message,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     // Get message history
-    const messageHistory = await messageRepository.getByConversationId(conversationId);
+    const messageHistory =
+      await messageRepository.getByConversationId(conversationId);
     const formattedMessages = messageHistory.map((msg) => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     }));
 
     // Add system prompt if present
     if (conversation.systemPrompt) {
       formattedMessages.unshift({
-        role: 'system',
-        content: conversation.systemPrompt
+        role: "system",
+        content: conversation.systemPrompt,
       });
     }
 
     // Create placeholder for assistant message
     const assistantMessage = await messageRepository.create({
       conversationId,
-      role: 'assistant',
-      content: '',
-      createdAt: new Date()
+      role: "assistant",
+      content: "",
+      createdAt: new Date(),
     });
 
     // Get AI provider
     const aiProvider = AIProviderFactory.getProvider(provider, options);
 
     // Setup stream handler to capture full response
-    const responseHandler = aiProvider.streamToResponse(formattedMessages, res, options);
+    const responseHandler = aiProvider.streamToResponse(
+      formattedMessages,
+      res,
+      options,
+    );
 
     // Update the message when streaming is complete
-    res.on('finish', async () => {
+    res.on("finish", async () => {
       try {
         // If we have the full response, update the message in the database
         if (responseHandler && responseHandler.fullResponse) {
           await messageRepository.update(assistantMessage.id, {
-            content: responseHandler.fullResponse
+            content: responseHandler.fullResponse,
           });
 
           // Update conversation last activity time
           await conversationRepository.update(conversationId, {
-            updatedAt: new Date()
+            updatedAt: new Date(),
           });
         }
       } catch (error) {
-        console.error('Error updating message after stream:', error);
+        console.error("Error updating message after stream:", error);
       }
     });
   } catch (error) {
-    console.error('Error handling chat stream:', error);
+    console.error("Error handling chat stream:", error);
 
     // If headers already sent, we need to write to the stream
     if (res.headersSent) {
-      res.write(`data: ${JSON.stringify({ error: 'An error occurred during processing' })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({ error: "An error occurred during processing" })}\n\n`,
+      );
       res.end();
     } else {
-      res.status(500).json({ error: 'Failed to process chat request' });
+      res.status(500).json({ error: "Failed to process chat request" });
     }
   }
 }
@@ -420,36 +430,40 @@ async function handleChatStream(req, res) {
 // Handle non-streaming chat requests
 async function handleChatCompletion(req, res) {
   const { conversationId } = req.params;
-  const { message, provider = 'openai', options = {} } = req.body;
+  const { message, provider = "openai", options = {} } = req.body;
   const userId = req.user.id;
 
   try {
     // Verify user has access to this conversation
-    const conversation = await conversationRepository.findByIdAndUser(conversationId, userId);
+    const conversation = await conversationRepository.findByIdAndUser(
+      conversationId,
+      userId,
+    );
     if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
+      return res.status(404).json({ error: "Conversation not found" });
     }
 
     // Save user message to database
     await messageRepository.create({
       conversationId,
-      role: 'user',
+      role: "user",
       content: message,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     // Get message history
-    const messageHistory = await messageRepository.getByConversationId(conversationId);
+    const messageHistory =
+      await messageRepository.getByConversationId(conversationId);
     const formattedMessages = messageHistory.map((msg) => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     }));
 
     // Add system prompt if present
     if (conversation.systemPrompt) {
       formattedMessages.unshift({
-        role: 'system',
-        content: conversation.systemPrompt
+        role: "system",
+        content: conversation.systemPrompt,
       });
     }
 
@@ -457,36 +471,39 @@ async function handleChatCompletion(req, res) {
     const aiProvider = AIProviderFactory.getProvider(provider, options);
 
     // Generate completion
-    const completion = await aiProvider.generateCompletion(formattedMessages, options);
+    const completion = await aiProvider.generateCompletion(
+      formattedMessages,
+      options,
+    );
 
     // Save assistant response
     const assistantMessage = await messageRepository.create({
       conversationId,
-      role: 'assistant',
+      role: "assistant",
       content: completion.text,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     // Update conversation last activity time
     await conversationRepository.update(conversationId, {
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     // Return response
     return res.json({
       message: assistantMessage,
       model: completion.model,
-      provider: completion.provider
+      provider: completion.provider,
     });
   } catch (error) {
-    console.error('Error handling chat completion:', error);
-    return res.status(500).json({ error: 'Failed to process chat request' });
+    console.error("Error handling chat completion:", error);
+    return res.status(500).json({ error: "Failed to process chat request" });
   }
 }
 
 module.exports = {
   handleChatStream,
-  handleChatCompletion
+  handleChatCompletion,
 };
 ```
 
@@ -494,27 +511,30 @@ module.exports = {
 
 ```javascript
 // apps/api/src/routes/chat.js
-const express = require('express');
-const { authenticate } = require('../middleware/auth');
-const { rateLimit } = require('../middleware/rateLimit');
-const { handleChatStream, handleChatCompletion } = require('../controllers/chat');
+const express = require("express");
+const { authenticate } = require("../middleware/auth");
+const { rateLimit } = require("../middleware/rateLimit");
+const {
+  handleChatStream,
+  handleChatCompletion,
+} = require("../controllers/chat");
 
 const router = express.Router();
 
 // Stream chat completion route
 router.post(
-  '/conversations/:conversationId/stream',
+  "/conversations/:conversationId/stream",
   authenticate,
-  rateLimit('chat'),
-  handleChatStream
+  rateLimit("chat"),
+  handleChatStream,
 );
 
 // Standard chat completion route
 router.post(
-  '/conversations/:conversationId/completion',
+  "/conversations/:conversationId/completion",
   authenticate,
-  rateLimit('chat'),
-  handleChatCompletion
+  rateLimit("chat"),
+  handleChatCompletion,
 );
 
 module.exports = router;
@@ -526,36 +546,40 @@ Implement caching for AI responses to reduce costs and improve performance:
 
 ```javascript
 // packages/ai-core/src/utils/cache.js
-const { Redis } = require('@upstash/redis');
-const crypto = require('crypto');
+const { Redis } = require("@upstash/redis");
+const crypto = require("crypto");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,
-  token: process.env.UPSTASH_REDIS_TOKEN
+  token: process.env.UPSTASH_REDIS_TOKEN,
 });
 
 // Generate cache key from messages and options
-function generateCacheKey(messages, options = {}, provider = 'openai') {
+function generateCacheKey(messages, options = {}, provider = "openai") {
   // Create a deterministic string representation
   const data = JSON.stringify({
     messages: messages.map((m) => ({
       role: m.role,
-      content: m.content
+      content: m.content,
     })),
     options: {
       model: options.model,
       temperature: options.temperature || 0.7,
-      topP: options.topP || 1
+      topP: options.topP || 1,
     },
-    provider
+    provider,
   });
 
   // Generate hash
-  return crypto.createHash('md5').update(data).digest('hex');
+  return crypto.createHash("md5").update(data).digest("hex");
 }
 
 // Check cache before making API call
-async function getCachedCompletion(messages, options = {}, provider = 'openai') {
+async function getCachedCompletion(
+  messages,
+  options = {},
+  provider = "openai",
+) {
   // Only cache deterministic responses (low temperature)
   if ((options.temperature || 0.7) > 0.1) {
     return null;
@@ -566,7 +590,12 @@ async function getCachedCompletion(messages, options = {}, provider = 'openai') 
 }
 
 // Store completion in cache
-async function cacheCompletion(messages, completion, options = {}, provider = 'openai') {
+async function cacheCompletion(
+  messages,
+  completion,
+  options = {},
+  provider = "openai",
+) {
   // Only cache deterministic responses (low temperature)
   if ((options.temperature || 0.7) > 0.1) {
     return;
@@ -580,7 +609,7 @@ async function cacheCompletion(messages, completion, options = {}, provider = 'o
 
 module.exports = {
   getCachedCompletion,
-  cacheCompletion
+  cacheCompletion,
 };
 ```
 
@@ -588,8 +617,8 @@ module.exports = {
 
 ```javascript
 // packages/ai-core/src/providers/enhanced-openai.js
-const { OpenAIProvider } = require('./openai');
-const { getCachedCompletion, cacheCompletion } = require('../utils/cache');
+const { OpenAIProvider } = require("./openai");
+const { getCachedCompletion, cacheCompletion } = require("../utils/cache");
 
 class EnhancedOpenAIProvider extends OpenAIProvider {
   constructor(options = {}) {
@@ -600,7 +629,11 @@ class EnhancedOpenAIProvider extends OpenAIProvider {
   async generateCompletion(messages, options = {}) {
     // Check cache if enabled
     if (this.enableCache) {
-      const cachedResult = await getCachedCompletion(messages, options, 'openai');
+      const cachedResult = await getCachedCompletion(
+        messages,
+        options,
+        "openai",
+      );
       if (cachedResult) {
         return JSON.parse(cachedResult);
       }
@@ -611,7 +644,7 @@ class EnhancedOpenAIProvider extends OpenAIProvider {
 
     // Cache result if enabled
     if (this.enableCache) {
-      await cacheCompletion(messages, completion, options, 'openai');
+      await cacheCompletion(messages, completion, options, "openai");
     }
 
     return completion;
@@ -625,20 +658,20 @@ module.exports = { EnhancedOpenAIProvider };
 
 ```javascript
 // apps/api/src/middleware/aiRateLimiter.js
-const { Ratelimit } = require('@upstash/ratelimit');
-const { Redis } = require('@upstash/redis');
+const { Ratelimit } = require("@upstash/ratelimit");
+const { Redis } = require("@upstash/redis");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,
-  token: process.env.UPSTASH_REDIS_TOKEN
+  token: process.env.UPSTASH_REDIS_TOKEN,
 });
 
 // Model-specific rate limits
 const MODEL_LIMITS = {
-  'gpt-4': { requests: 10, per: '1m' }, // 10 requests per minute for GPT-4
-  'gpt-3.5-turbo': { requests: 20, per: '1m' }, // 20 requests per minute for GPT-3.5
-  'claude-3-opus': { requests: 10, per: '1m' }, // 10 requests per minute for Claude-3
-  default: { requests: 20, per: '1m' } // Default limit
+  "gpt-4": { requests: 10, per: "1m" }, // 10 requests per minute for GPT-4
+  "gpt-3.5-turbo": { requests: 20, per: "1m" }, // 20 requests per minute for GPT-3.5
+  "claude-3-opus": { requests: 10, per: "1m" }, // 10 requests per minute for Claude-3
+  default: { requests: 20, per: "1m" }, // Default limit
 };
 
 // Create rate limiters for different models
@@ -652,7 +685,7 @@ function getRateLimiter(model) {
       redis,
       limiter: Ratelimit.slidingWindow(limit.requests, limit.per),
       analytics: true,
-      prefix: `ratelimit:ai:${model}`
+      prefix: `ratelimit:ai:${model}`,
     });
   }
 
@@ -662,7 +695,7 @@ function getRateLimiter(model) {
 // AI-specific rate limiting middleware
 function aiRateLimiter(req, res, next) {
   const userId = req.user?.id || req.ip;
-  const model = req.body.options?.model || 'default';
+  const model = req.body.options?.model || "default";
 
   const limiter = getRateLimiter(model);
 
@@ -673,22 +706,22 @@ function aiRateLimiter(req, res, next) {
       const { success, limit, reset, remaining } = result;
 
       // Set headers
-      res.setHeader('X-RateLimit-Limit', limit);
-      res.setHeader('X-RateLimit-Remaining', remaining);
-      res.setHeader('X-RateLimit-Reset', reset);
+      res.setHeader("X-RateLimit-Limit", limit);
+      res.setHeader("X-RateLimit-Remaining", remaining);
+      res.setHeader("X-RateLimit-Reset", reset);
 
       if (!success) {
         return res.status(429).json({
-          error: 'AI request rate limit exceeded',
+          error: "AI request rate limit exceeded",
           model,
-          reset: new Date(reset).toISOString()
+          reset: new Date(reset).toISOString(),
         });
       }
 
       next();
     })
     .catch((error) => {
-      console.error('Rate limiting error:', error);
+      console.error("Rate limiting error:", error);
       // Proceed on error rather than blocking request
       next();
     });
@@ -726,10 +759,10 @@ function isRetryableError(error) {
     error.status === 429 || // Rate limit
     error.status === 500 || // Server error
     error.status === 503 || // Service unavailable
-    error.code === 'ECONNRESET' || // Connection reset
-    error.code === 'ETIMEDOUT' || // Timeout
-    error.message.includes('timeout') ||
-    error.message.includes('rate limit')
+    error.code === "ECONNRESET" || // Connection reset
+    error.code === "ETIMEDOUT" || // Timeout
+    error.message.includes("timeout") ||
+    error.message.includes("rate limit")
   );
 }
 
@@ -743,12 +776,12 @@ async function withProviderFallback(primaryFn, fallbackFn) {
   try {
     return await withRetry(primaryFn);
   } catch (primaryError) {
-    console.error('Primary AI provider failed, trying fallback:', primaryError);
+    console.error("Primary AI provider failed, trying fallback:", primaryError);
     try {
       return await withRetry(fallbackFn);
     } catch (fallbackError) {
-      console.error('Fallback AI provider also failed:', fallbackError);
-      throw new Error('All AI providers failed to process the request');
+      console.error("Fallback AI provider also failed:", fallbackError);
+      throw new Error("All AI providers failed to process the request");
     }
   }
 }
@@ -756,7 +789,7 @@ async function withProviderFallback(primaryFn, fallbackFn) {
 module.exports = {
   withRetry,
   withProviderFallback,
-  isRetryableError
+  isRetryableError,
 };
 ```
 
@@ -764,35 +797,45 @@ module.exports = {
 
 ```javascript
 // packages/ai-core/src/utils/monitoring.js
-const { Redis } = require('@upstash/redis');
+const { Redis } = require("@upstash/redis");
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,
-  token: process.env.UPSTASH_REDIS_TOKEN
+  token: process.env.UPSTASH_REDIS_TOKEN,
 });
 
 // Track AI request metrics
 async function trackAIMetrics(provider, model, duration, tokens, success) {
-  const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
   // Increment request count
   await redis.hincrby(`ai:metrics:${date}:count`, `${provider}:${model}`, 1);
 
   // Track success/failure
   await redis.hincrby(
-    `ai:metrics:${date}:${success ? 'success' : 'error'}`,
+    `ai:metrics:${date}:${success ? "success" : "error"}`,
     `${provider}:${model}`,
-    1
+    1,
   );
 
   // Track token usage
   if (tokens) {
-    await redis.hincrby(`ai:metrics:${date}:tokens`, `${provider}:${model}`, tokens);
+    await redis.hincrby(
+      `ai:metrics:${date}:tokens`,
+      `${provider}:${model}`,
+      tokens,
+    );
   }
 
   // Track average duration
-  const currentDuration = await redis.hget(`ai:metrics:${date}:duration`, `${provider}:${model}`);
-  const currentCount = await redis.hget(`ai:metrics:${date}:count`, `${provider}:${model}`);
+  const currentDuration = await redis.hget(
+    `ai:metrics:${date}:duration`,
+    `${provider}:${model}`,
+  );
+  const currentCount = await redis.hget(
+    `ai:metrics:${date}:count`,
+    `${provider}:${model}`,
+  );
 
   if (currentDuration && currentCount) {
     const newAvgDuration =
@@ -802,10 +845,14 @@ async function trackAIMetrics(provider, model, duration, tokens, success) {
     await redis.hset(
       `ai:metrics:${date}:duration`,
       `${provider}:${model}`,
-      newAvgDuration.toFixed(2)
+      newAvgDuration.toFixed(2),
     );
   } else {
-    await redis.hset(`ai:metrics:${date}:duration`, `${provider}:${model}`, duration.toFixed(2));
+    await redis.hset(
+      `ai:metrics:${date}:duration`,
+      `${provider}:${model}`,
+      duration.toFixed(2),
+    );
   }
 }
 

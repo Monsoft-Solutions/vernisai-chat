@@ -7,7 +7,7 @@ import { createInnerTRPCContext } from "../trpc";
  * Handle tRPC requests in an AWS Lambda function
  */
 export const lambdaHandler = async (
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
   try {
     // Extract authentication information from the event
@@ -22,7 +22,7 @@ export const lambdaHandler = async (
     // Create a fetch request from the Lambda event
     const url = new URL(
       event.path,
-      `https://${event.headers.host || "localhost"}`
+      `https://${event.headers.host || "localhost"}`,
     );
 
     // Add query parameters

@@ -1,32 +1,109 @@
-# `Turborepo` Vite starter
+# VernisAI Chat
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+VernisAI Chat is an AI-powered chat application and intelligent agent platform developed by Monsoft Solutions.
 
-## Using this example
+## Overview
 
-Run the following command:
+VernisAI Chat provides a powerful chat interface and intelligent agent capabilities to enhance user interactions through advanced AI. The platform enables users to interact with AI models through both simple chat interfaces and complex agent-based workflows. It supports multiple organizations, each with their own set of users, and allows for the creation and management of custom AI agents that can perform specific tasks.
 
-```sh
-npx create-turbo@latest -e with-vite-react
-```
+### Key Features
 
-## What's inside?
+- **AI-Powered Chat**: Real-time conversations with state-of-the-art AI models with streaming responses
+- **Intelligent Agents**: Predefined and dynamic agents capable of using tools and solving complex tasks
+- **Multi-Organization Support**: Organization-based access control and user management
+- **API-First Architecture**: Fully accessible via tRPC endpoints with TypeScript SDK
+- **Third-Party Integration**: OpenAPI documentation and SDK for third-party developers
+- **Serverless Deployment**: Efficient scaling and cost optimization
 
-This Turborepo includes the following packages and apps:
+## Tech Stack
 
-### Apps and Packages
+- **Frontend**: React with TypeScript and Vite
+- **API Framework**: tRPC for type-safe APIs
+- **Database**: Supabase PostgreSQL with Drizzle ORM
+- **Authentication**: Supabase Auth with JWT
+- **UI**: Tailwind CSS with Shadcn/UI components
+- **AI Integration**: Support for OpenAI, Anthropic, and other LLM providers
+- **Monorepo**: Turborepo for efficient development workflow
+- **Deployment**: Serverless functions on Vercel or AWS Lambda
 
-- `web`: react [vite](https://vitejs.dev) ts app
-- `@repo/ui`: a stub component library shared by `web` application
-- `@repo/eslint-config`: shared `eslint` configurations
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Project Structure
 
-Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
+This is a monorepo managed with Turborepo containing the following apps and packages:
 
-### Utilities
+### Apps
 
-This Turborepo has some additional tools already setup for you:
+- `web`: React application with Vite for the main user interface
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Packages
+
+- `@vernisai/ui`: Shared UI component library built on Tailwind and Radix
+- `@vernisai/api`: tRPC API implementation and utilities
+- `@vernisai/database`: Database schemas and client with Drizzle ORM
+- `@vernisai/eslint-config`: Shared ESLint configurations
+- `@vernisai/typescript-config`: Shared TypeScript configurations
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm (v10 or higher)
+
+### Installation
+
+1. Clone the repository
+
+   ```sh
+   git clone https://github.com/monsoft-solutions/vernisai-chat.git
+   cd vernisai-chat
+   ```
+
+2. Install dependencies
+
+   ```sh
+   npm install
+   ```
+
+3. Set up environment variables
+
+   ```sh
+   cp .env.local.example .env.local
+   # Update the values in .env.local with your configuration
+   ```
+
+4. Start the development server
+   ```sh
+   npm run dev
+   ```
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Lint code
+- `npm run format` - Format code with Prettier
+- `npm run validate` - Run validation checks including docs validation
+- `npm run validate-docs` - Validate documentation
+
+## Documentation
+
+Comprehensive documentation is available in the `docs` directory:
+
+- **Core Architecture**: Technical overview, database schema, and tRPC implementation details
+- **UI/UX**: Design system, component specifications, and screen implementations
+- **Integration Components**: AI provider integrations, authentication, and third-party services
+- **External API**: API documentation for third-party developers
+
+See the [Platform Roadmap](docs/roadmap.md) for a detailed implementation plan.
+
+## Contributing
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Monsoft Solutions - [https://monsoftsolutions.com](https://monsoftsolutions.com)

@@ -141,7 +141,7 @@ export const appRouter = router({
   conversations: conversationRouter,
   messages: messageRouter,
   agents: agentRouter,
-  billing: billingRouter
+  billing: billingRouter,
 });
 
 // Example procedure (endpoint)
@@ -149,7 +149,7 @@ export const userRouter = router({
   getCurrentUser: protectedProcedure.query(async ({ ctx }) => {
     // Get current user logic
     return ctx.userService.getCurrentUser(ctx.user.id);
-  })
+  }),
 
   // Other user endpoints
 });
@@ -163,12 +163,12 @@ export type AppRouter = typeof appRouter;
 The tRPC API will be documented using OpenAPI specifications:
 
 ```typescript
-import { generateOpenApiDocument } from 'trpc-openapi';
+import { generateOpenApiDocument } from "trpc-openapi";
 
 export const openApiDocument = generateOpenApiDocument(appRouter, {
-  title: 'VernisAI API',
-  version: '1.0.0',
-  baseUrl: 'https://app.vernis.ai/api'
+  title: "VernisAI API",
+  version: "1.0.0",
+  baseUrl: "https://app.vernis.ai/api",
 });
 ```
 

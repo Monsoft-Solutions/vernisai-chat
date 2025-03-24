@@ -76,11 +76,11 @@ The AI Chatbot offers tiered subscription plans:
 
 ```typescript
 // src/lib/stripe/client.ts
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
-  typescript: true
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+  apiVersion: "2023-10-16",
+  typescript: true,
 });
 ```
 
@@ -88,23 +88,27 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 ```typescript
 // src/services/subscription.service.ts
-import { stripe } from '../lib/stripe/client';
-import { db } from '../db';
-import { subscriptions, organizations } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { stripe } from "../lib/stripe/client";
+import { db } from "../db";
+import { subscriptions, organizations } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export class SubscriptionService {
-  async createSubscription(organizationId: string, priceId: string, paymentMethodId: string) {
+  async createSubscription(
+    organizationId: string,
+    priceId: string,
+    paymentMethodId: string,
+  ) {
     // Get organization and existing subscription
     const org = await db.query.organizations.findFirst({
       where: eq(organizations.id, organizationId),
       with: {
-        subscriptions: true
-      }
+        subscriptions: true,
+      },
     });
 
     if (!org) {
-      throw new Error('Organization not found');
+      throw new Error("Organization not found");
     }
 
     // Get or create Stripe customer
@@ -114,34 +118,34 @@ export class SubscriptionService {
       const customer = await stripe.customers.create({
         name: org.name,
         metadata: {
-          organizationId
-        }
+          organizationId,
+        },
       });
       customerId = customer.id;
     }
 
     // Attach payment method to customer
     await stripe.paymentMethods.attach(paymentMethodId, {
-      customer: customerId
+      customer: customerId,
     });
 
     // Set as default payment method
     await stripe.customers.update(customerId, {
       invoice_settings: {
-        default_payment_method: paymentMethodId
-      }
+        default_payment_method: paymentMethodId,
+      },
     });
 
     // Create subscription
     const subscription = await stripe.subscriptions.create({
       customer: customerId,
       items: [{ price: priceId }],
-      payment_behavior: 'default_incomplete',
+      payment_behavior: "default_incomplete",
       payment_settings: {
-        payment_method_types: ['card'],
-        save_default_payment_method: 'on_subscription'
+        payment_method_types: ["card"],
+        save_default_payment_method: "on_subscription",
       },
-      expand: ['latest_invoice.payment_intent']
+      expand: ["latest_invoice.payment_intent"],
     });
 
     // Update database with subscription info
@@ -154,7 +158,7 @@ export class SubscriptionService {
         plan: this.getPlanFromPriceId(priceId),
         status: subscription.status,
         currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000)
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       })
       .onConflictDoUpdate({
         target: [subscriptions.organizationId],
@@ -162,50 +166,55 @@ export class SubscriptionService {
           stripeSubscriptionId: subscription.id,
           plan: this.getPlanFromPriceId(priceId),
           status: subscription.status,
-          currentPeriodStart: new Date(subscription.current_period_start * 1000),
+          currentPeriodStart: new Date(
+            subscription.current_period_start * 1000,
+          ),
           currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       })
       .returning();
 
     return {
       subscription: updatedSubscription,
-      clientSecret: subscription.latest_invoice?.payment_intent?.client_secret
+      clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
     };
   }
 
-  private getPlanFromPriceId(priceId: string): 'free' | 'pro' | 'team' | 'enterprise' {
-    const priceToPlan: Record<string, 'free' | 'pro' | 'team' | 'enterprise'> = {
-      price_free: 'free',
-      price_pro_monthly: 'pro',
-      price_team_monthly: 'team',
-      price_enterprise: 'enterprise'
-    };
+  private getPlanFromPriceId(
+    priceId: string,
+  ): "free" | "pro" | "team" | "enterprise" {
+    const priceToPlan: Record<string, "free" | "pro" | "team" | "enterprise"> =
+      {
+        price_free: "free",
+        price_pro_monthly: "pro",
+        price_team_monthly: "team",
+        price_enterprise: "enterprise",
+      };
 
-    return priceToPlan[priceId] || 'free';
+    return priceToPlan[priceId] || "free";
   }
 
   async cancelSubscription(organizationId: string) {
     const subscription = await db.query.subscriptions.findFirst({
-      where: eq(subscriptions.organizationId, organizationId)
+      where: eq(subscriptions.organizationId, organizationId),
     });
 
     if (!subscription?.stripeSubscriptionId) {
-      throw new Error('No active subscription found');
+      throw new Error("No active subscription found");
     }
 
     // Cancel at period end
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      cancel_at_period_end: true
+      cancel_at_period_end: true,
     });
 
     // Update database
     await db
       .update(subscriptions)
       .set({
-        status: 'canceled',
-        updatedAt: new Date()
+        status: "canceled",
+        updatedAt: new Date(),
       })
       .where(eq(subscriptions.id, subscription.id));
 
@@ -215,7 +224,7 @@ export class SubscriptionService {
   async getActiveSubscription(organizationId: string) {
     return db.query.subscriptions.findFirst({
       where: (subs, { eq, and }) =>
-        and(eq(subs.organizationId, organizationId), eq(subs.status, 'active'))
+        and(eq(subs.organizationId, organizationId), eq(subs.status, "active")),
     });
   }
 }
@@ -225,10 +234,10 @@ export class SubscriptionService {
 
 ```typescript
 // src/trpc/routers/stripe.router.ts
-import { router, protectedProcedure } from '../trpc';
-import { z } from 'zod';
-import { SubscriptionService } from '../../services/subscription.service';
-import { TRPCError } from '@trpc/server';
+import { router, protectedProcedure } from "../trpc";
+import { z } from "zod";
+import { SubscriptionService } from "../../services/subscription.service";
+import { TRPCError } from "@trpc/server";
 
 const subscriptionService = new SubscriptionService();
 
@@ -238,41 +247,47 @@ export const stripeRouter = router({
       z.object({
         organizationId: z.string().uuid(),
         priceId: z.string(),
-        paymentMethodId: z.string()
-      })
+        paymentMethodId: z.string(),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       // Check if user has permissions to manage organization subscriptions
-      const canManage = await ctx.auth.canManageOrganization(ctx.user.id, input.organizationId);
+      const canManage = await ctx.auth.canManageOrganization(
+        ctx.user.id,
+        input.organizationId,
+      );
 
       if (!canManage) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to manage this organization'
+          code: "FORBIDDEN",
+          message: "You do not have permission to manage this organization",
         });
       }
 
       return subscriptionService.createSubscription(
         input.organizationId,
         input.priceId,
-        input.paymentMethodId
+        input.paymentMethodId,
       );
     }),
 
   cancelSubscription: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().uuid()
-      })
+        organizationId: z.string().uuid(),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       // Check if user has permissions to manage organization subscriptions
-      const canManage = await ctx.auth.canManageOrganization(ctx.user.id, input.organizationId);
+      const canManage = await ctx.auth.canManageOrganization(
+        ctx.user.id,
+        input.organizationId,
+      );
 
       if (!canManage) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to manage this organization'
+          code: "FORBIDDEN",
+          message: "You do not have permission to manage this organization",
         });
       }
 
@@ -282,22 +297,25 @@ export const stripeRouter = router({
   getActiveSubscription: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().uuid()
-      })
+        organizationId: z.string().uuid(),
+      }),
     )
     .query(async ({ input, ctx }) => {
       // Check if user belongs to the organization
-      const isMember = await ctx.auth.isOrganizationMember(ctx.user.id, input.organizationId);
+      const isMember = await ctx.auth.isOrganizationMember(
+        ctx.user.id,
+        input.organizationId,
+      );
 
       if (!isMember) {
         throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have access to this organization'
+          code: "FORBIDDEN",
+          message: "You do not have access to this organization",
         });
       }
 
       return subscriptionService.getActiveSubscription(input.organizationId);
-    })
+    }),
 });
 ```
 
@@ -307,29 +325,29 @@ Stripe webhooks are used to receive event notifications from Stripe:
 
 ```typescript
 // src/pages/api/webhooks/stripe.ts
-import { buffer } from 'micro';
-import Stripe from 'stripe';
-import { stripe } from '../../../lib/stripe/client';
-import { db } from '../../../db';
-import { subscriptions } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { buffer } from "micro";
+import Stripe from "stripe";
+import { stripe } from "../../../lib/stripe/client";
+import { db } from "../../../db";
+import { subscriptions } from "../../../db/schema";
+import { eq } from "drizzle-orm";
 
 export const config = {
   api: {
-    bodyParser: false
-  }
+    bodyParser: false,
+  },
 };
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).end('Method Not Allowed');
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).end("Method Not Allowed");
   }
 
   const buf = await buffer(req);
-  const sig = req.headers['stripe-signature'];
+  const sig = req.headers["stripe-signature"];
 
   let event;
 
@@ -342,16 +360,16 @@ export default async function handler(req, res) {
 
   // Handle the event
   switch (event.type) {
-    case 'invoice.payment_succeeded':
+    case "invoice.payment_succeeded":
       await handleInvoicePaymentSucceeded(event.data.object);
       break;
-    case 'invoice.payment_failed':
+    case "invoice.payment_failed":
       await handleInvoicePaymentFailed(event.data.object);
       break;
-    case 'customer.subscription.updated':
+    case "customer.subscription.updated":
       await handleSubscriptionUpdated(event.data.object);
       break;
-    case 'customer.subscription.deleted':
+    case "customer.subscription.deleted":
       await handleSubscriptionDeleted(event.data.object);
       break;
     default:
@@ -368,8 +386,8 @@ async function handleInvoicePaymentSucceeded(invoice) {
     await db
       .update(subscriptions)
       .set({
-        status: 'active',
-        updatedAt: new Date()
+        status: "active",
+        updatedAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
   }
@@ -382,8 +400,8 @@ async function handleInvoicePaymentFailed(invoice) {
     await db
       .update(subscriptions)
       .set({
-        status: 'past_due',
-        updatedAt: new Date()
+        status: "past_due",
+        updatedAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
   }
@@ -396,7 +414,7 @@ async function handleSubscriptionUpdated(subscription) {
       status: subscription.status,
       currentPeriodStart: new Date(subscription.current_period_start * 1000),
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })
     .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
 }
@@ -405,8 +423,8 @@ async function handleSubscriptionDeleted(subscription) {
   await db
     .update(subscriptions)
     .set({
-      status: 'canceled',
-      updatedAt: new Date()
+      status: "canceled",
+      updatedAt: new Date(),
     })
     .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
 }
@@ -418,16 +436,20 @@ For metered usage (e.g., additional API calls, agent usage):
 
 ```typescript
 // src/services/usage.service.ts
-import { stripe } from '../lib/stripe/client';
-import { db } from '../db';
-import { subscriptions } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { stripe } from "../lib/stripe/client";
+import { db } from "../db";
+import { subscriptions } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export class UsageService {
-  async recordAgentUsage(organizationId: string, agentId: string, toolUsageCount: number) {
+  async recordAgentUsage(
+    organizationId: string,
+    agentId: string,
+    toolUsageCount: number,
+  ) {
     const subscription = await db.query.subscriptions.findFirst({
       where: (subs, { eq, and }) =>
-        and(eq(subs.organizationId, organizationId), eq(subs.status, 'active'))
+        and(eq(subs.organizationId, organizationId), eq(subs.status, "active")),
     });
 
     if (!subscription?.stripeSubscriptionId) {
@@ -436,24 +458,24 @@ export class UsageService {
     }
 
     // For metered billing, report usage to Stripe
-    if (subscription.plan === 'team' || subscription.plan === 'enterprise') {
+    if (subscription.plan === "team" || subscription.plan === "enterprise") {
       // Get subscription items
       const items = await stripe.subscriptionItems.list({
-        subscription: subscription.stripeSubscriptionId
+        subscription: subscription.stripeSubscriptionId,
       });
 
       // Find the usage-based item (assuming one metered item per subscription)
       const usageItem = items.data.find((item) => {
         // Identify the metered price by its ID or metadata
-        return item.price.recurring?.usage_type === 'metered';
+        return item.price.recurring?.usage_type === "metered";
       });
 
       if (usageItem) {
         // Report usage for the current billing period
         await stripe.subscriptionItems.createUsageRecord(usageItem.id, {
           quantity: toolUsageCount,
-          timestamp: 'now',
-          action: 'increment'
+          timestamp: "now",
+          action: "increment",
         });
       }
     }
@@ -602,28 +624,32 @@ export const SubscriptionFormWithStripe = ({ organizationId, priceId, onSuccess 
 
 ```typescript
 // src/middleware/subscription.middleware.ts
-import { TRPCError } from '@trpc/server';
-import { SubscriptionService } from '../services/subscription.service';
+import { TRPCError } from "@trpc/server";
+import { SubscriptionService } from "../services/subscription.service";
 
 const subscriptionService = new SubscriptionService();
 
-export const requireSubscription = (minimumPlan: 'free' | 'pro' | 'team' | 'enterprise') => {
+export const requireSubscription = (
+  minimumPlan: "free" | "pro" | "team" | "enterprise",
+) => {
   return async ({ ctx, next, input, path }) => {
-    const organizationId = input.organizationId || ctx.user.defaultOrganizationId;
+    const organizationId =
+      input.organizationId || ctx.user.defaultOrganizationId;
 
     if (!organizationId) {
       throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Organization ID is required'
+        code: "BAD_REQUEST",
+        message: "Organization ID is required",
       });
     }
 
-    const subscription = await subscriptionService.getActiveSubscription(organizationId);
+    const subscription =
+      await subscriptionService.getActiveSubscription(organizationId);
 
     if (!subscription) {
       throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'No active subscription found'
+        code: "FORBIDDEN",
+        message: "No active subscription found",
       });
     }
 
@@ -631,13 +657,13 @@ export const requireSubscription = (minimumPlan: 'free' | 'pro' | 'team' | 'ente
       free: 0,
       pro: 1,
       team: 2,
-      enterprise: 3
+      enterprise: 3,
     };
 
     if (planHierarchy[subscription.plan] < planHierarchy[minimumPlan]) {
       throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: `This feature requires at least the ${minimumPlan} plan`
+        code: "FORBIDDEN",
+        message: `This feature requires at least the ${minimumPlan} plan`,
       });
     }
 

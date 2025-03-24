@@ -102,7 +102,7 @@ export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
  * Organization procedure - requires both user auth and organization ID
  */
 export const organizationProcedure = protectedProcedure.use(
-  enforceOrganizationIsSpecified
+  enforceOrganizationIsSpecified,
 );
 
 /**

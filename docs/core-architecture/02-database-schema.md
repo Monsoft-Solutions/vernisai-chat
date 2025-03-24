@@ -17,91 +17,101 @@ This document outlines the database schema design for the AI Chatbot application
 ### Organizations and Users
 
 ```typescript
-import { pgTable, uuid, text, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  boolean,
+  integer,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // Organizations table
-export const organizations = pgTable('organizations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  logoUrl: text('logo_url'),
-  settings: jsonb('settings'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+export const organizations = pgTable("organizations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  logoUrl: text("logo_url"),
+  settings: jsonb("settings"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Organization relations
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   users: many(organizationUsers),
   subscriptions: many(subscriptions),
-  agents: many(agents)
+  agents: many(agents),
 }));
 
 // Users table
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: text('email').notNull().unique(),
-  name: text('name'),
-  avatarUrl: text('avatar_url'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // User relations
 export const usersRelations = relations(users, ({ many }) => ({
   organizations: many(organizationUsers),
-  conversations: many(conversations)
+  conversations: many(conversations),
 }));
 
 // Organization users junction table
-export const organizationUsers = pgTable('organization_users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
+export const organizationUsers = pgTable("organization_users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  organizationId: uuid('organization_id')
-    .references(() => organizations.id, { onDelete: 'cascade' })
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
     .notNull(),
-  role: text('role').notNull(), // 'owner', 'admin', 'member'
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+  role: text("role").notNull(), // 'owner', 'admin', 'member'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Organization users relations
-export const organizationUsersRelations = relations(organizationUsers, ({ one }) => ({
-  user: one(users, {
-    fields: [organizationUsers.userId],
-    references: [users.id]
+export const organizationUsersRelations = relations(
+  organizationUsers,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [organizationUsers.userId],
+      references: [users.id],
+    }),
+    organization: one(organizations, {
+      fields: [organizationUsers.organizationId],
+      references: [organizations.id],
+    }),
   }),
-  organization: one(organizations, {
-    fields: [organizationUsers.organizationId],
-    references: [organizations.id]
-  })
-}));
+);
 
 // Subscriptions table
-export const subscriptions = pgTable('subscriptions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id')
-    .references(() => organizations.id, { onDelete: 'cascade' })
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
     .notNull(),
-  stripeCustomerId: text('stripe_customer_id'),
-  stripeSubscriptionId: text('stripe_subscription_id'),
-  plan: text('plan').notNull(), // 'free', 'pro', 'enterprise'
-  status: text('status').notNull(), // 'active', 'inactive', 'canceled'
-  currentPeriodStart: timestamp('current_period_start'),
-  currentPeriodEnd: timestamp('current_period_end'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  plan: text("plan").notNull(), // 'free', 'pro', 'enterprise'
+  status: text("status").notNull(), // 'active', 'inactive', 'canceled'
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Subscription relations
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
   organization: one(organizations, {
     fields: [subscriptions.organizationId],
-    references: [organizations.id]
-  })
+    references: [organizations.id],
+  }),
 }));
 ```
 
@@ -109,62 +119,67 @@ export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
 
 ```typescript
 // Conversations table
-export const conversations = pgTable('conversations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  title: text('title').notNull(),
-  userId: uuid('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
+export const conversations = pgTable("conversations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  organizationId: uuid('organization_id')
-    .references(() => organizations.id, { onDelete: 'cascade' })
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
     .notNull(),
-  systemPrompt: text('system_prompt'),
-  agentId: uuid('agent_id').references(() => agents.id, { onDelete: 'set null' }),
-  metadata: jsonb('metadata'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+  systemPrompt: text("system_prompt"),
+  agentId: uuid("agent_id").references(() => agents.id, {
+    onDelete: "set null",
+  }),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Conversation relations
-export const conversationsRelations = relations(conversations, ({ one, many }) => ({
-  user: one(users, {
-    fields: [conversations.userId],
-    references: [users.id]
+export const conversationsRelations = relations(
+  conversations,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [conversations.userId],
+      references: [users.id],
+    }),
+    organization: one(organizations, {
+      fields: [conversations.organizationId],
+      references: [organizations.id],
+    }),
+    agent: one(agents, {
+      fields: [conversations.agentId],
+      references: [agents.id],
+    }),
+    messages: many(messages),
   }),
-  organization: one(organizations, {
-    fields: [conversations.organizationId],
-    references: [organizations.id]
-  }),
-  agent: one(agents, {
-    fields: [conversations.agentId],
-    references: [agents.id]
-  }),
-  messages: many(messages)
-}));
+);
 
 // Messages table
-export const messages = pgTable('messages', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  conversationId: uuid('conversation_id')
-    .references(() => conversations.id, { onDelete: 'cascade' })
+export const messages = pgTable("messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  conversationId: uuid("conversation_id")
+    .references(() => conversations.id, { onDelete: "cascade" })
     .notNull(),
-  role: text('role').notNull(), // 'user', 'assistant', 'system', 'tool'
-  content: text('content').notNull(),
-  toolCallId: text('tool_call_id'), // ID of the tool call (if this is a tool response)
-  toolName: text('tool_name'), // Name of the tool called
-  toolArgs: jsonb('tool_args'), // Arguments passed to the tool
-  toolResult: jsonb('tool_result'), // Result returned from the tool
-  parts: jsonb('parts'), // For multi-part messages (e.g., with images)
-  createdAt: timestamp('created_at').defaultNow().notNull()
+  role: text("role").notNull(), // 'user', 'assistant', 'system', 'tool'
+  content: text("content").notNull(),
+  toolCallId: text("tool_call_id"), // ID of the tool call (if this is a tool response)
+  toolName: text("tool_name"), // Name of the tool called
+  toolArgs: jsonb("tool_args"), // Arguments passed to the tool
+  toolResult: jsonb("tool_result"), // Result returned from the tool
+  parts: jsonb("parts"), // For multi-part messages (e.g., with images)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Message relations
 export const messagesRelations = relations(messages, ({ one, many }) => ({
   conversation: one(conversations, {
     fields: [messages.conversationId],
-    references: [conversations.id]
+    references: [conversations.id],
   }),
-  workflowStep: many(workflowSteps)
+  workflowStep: many(workflowSteps),
 }));
 ```
 
@@ -172,82 +187,82 @@ export const messagesRelations = relations(messages, ({ one, many }) => ({
 
 ```typescript
 // Agents table
-export const agents = pgTable('agents', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id')
-    .references(() => organizations.id, { onDelete: 'cascade' })
+export const agents = pgTable("agents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
     .notNull(),
-  createdById: uuid('created_by_id')
+  createdById: uuid("created_by_id")
     .references(() => users.id)
     .notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  systemPrompt: text('system_prompt').notNull(),
-  isPublic: boolean('is_public').default(false).notNull(),
-  metadata: jsonb('metadata'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+  name: text("name").notNull(),
+  description: text("description"),
+  systemPrompt: text("system_prompt").notNull(),
+  isPublic: boolean("is_public").default(false).notNull(),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Agent relations
 export const agentsRelations = relations(agents, ({ one, many }) => ({
   organization: one(organizations, {
     fields: [agents.organizationId],
-    references: [organizations.id]
+    references: [organizations.id],
   }),
   createdBy: one(users, {
     fields: [agents.createdById],
-    references: [users.id]
+    references: [users.id],
   }),
   tools: many(agentTools),
-  conversations: many(conversations)
+  conversations: many(conversations),
 }));
 
 // Tools table
-export const tools = pgTable('tools', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  description: text('description').notNull(),
-  category: text('category').notNull(), // 'search', 'calculation', 'external_api', etc.
-  parameters: jsonb('parameters').notNull(),
-  implementation: text('implementation').notNull(), // Function name or API endpoint
-  organizationId: uuid('organization_id').references(() => organizations.id),
-  isSystem: boolean('is_system').default(false).notNull(), // System tools vs custom tools
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
+export const tools = pgTable("tools", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // 'search', 'calculation', 'external_api', etc.
+  parameters: jsonb("parameters").notNull(),
+  implementation: text("implementation").notNull(), // Function name or API endpoint
+  organizationId: uuid("organization_id").references(() => organizations.id),
+  isSystem: boolean("is_system").default(false).notNull(), // System tools vs custom tools
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Tool relations
 export const toolsRelations = relations(tools, ({ one, many }) => ({
   organization: one(organizations, {
     fields: [tools.organizationId],
-    references: [organizations.id]
+    references: [organizations.id],
   }),
-  agents: many(agentTools)
+  agents: many(agentTools),
 }));
 
 // Agent tools junction table
-export const agentTools = pgTable('agent_tools', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  agentId: uuid('agent_id')
-    .references(() => agents.id, { onDelete: 'cascade' })
+export const agentTools = pgTable("agent_tools", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  agentId: uuid("agent_id")
+    .references(() => agents.id, { onDelete: "cascade" })
     .notNull(),
-  toolId: uuid('tool_id')
-    .references(() => tools.id, { onDelete: 'cascade' })
+  toolId: uuid("tool_id")
+    .references(() => tools.id, { onDelete: "cascade" })
     .notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull()
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Agent tools relations
 export const agentToolsRelations = relations(agentTools, ({ one }) => ({
   agent: one(agents, {
     fields: [agentTools.agentId],
-    references: [agents.id]
+    references: [agents.id],
   }),
   tool: one(tools, {
     fields: [agentTools.toolId],
-    references: [tools.id]
-  })
+    references: [tools.id],
+  }),
 }));
 ```
 
@@ -255,45 +270,47 @@ export const agentToolsRelations = relations(agentTools, ({ one }) => ({
 
 ```typescript
 // Workflow steps table (for tracking agent execution)
-export const workflowSteps = pgTable('workflow_steps', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  conversationId: uuid('conversation_id')
-    .references(() => conversations.id, { onDelete: 'cascade' })
+export const workflowSteps = pgTable("workflow_steps", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  conversationId: uuid("conversation_id")
+    .references(() => conversations.id, { onDelete: "cascade" })
     .notNull(),
-  messageId: uuid('message_id').references(() => messages.id, { onDelete: 'cascade' }),
-  agentId: uuid('agent_id')
+  messageId: uuid("message_id").references(() => messages.id, {
+    onDelete: "cascade",
+  }),
+  agentId: uuid("agent_id")
     .references(() => agents.id)
     .notNull(),
-  stepType: text('step_type').notNull(), // 'thinking', 'tool_execution', 'response'
-  stepIndex: integer('step_index').notNull(), // Order in the workflow
-  toolId: uuid('tool_id').references(() => tools.id),
-  toolInput: jsonb('tool_input'),
-  toolOutput: jsonb('tool_output'),
-  status: text('status').notNull(), // 'pending', 'running', 'completed', 'failed'
-  error: text('error'),
-  startedAt: timestamp('started_at').notNull(),
-  completedAt: timestamp('completed_at'),
-  duration: integer('duration') // In milliseconds
+  stepType: text("step_type").notNull(), // 'thinking', 'tool_execution', 'response'
+  stepIndex: integer("step_index").notNull(), // Order in the workflow
+  toolId: uuid("tool_id").references(() => tools.id),
+  toolInput: jsonb("tool_input"),
+  toolOutput: jsonb("tool_output"),
+  status: text("status").notNull(), // 'pending', 'running', 'completed', 'failed'
+  error: text("error"),
+  startedAt: timestamp("started_at").notNull(),
+  completedAt: timestamp("completed_at"),
+  duration: integer("duration"), // In milliseconds
 });
 
 // Workflow steps relations
 export const workflowStepsRelations = relations(workflowSteps, ({ one }) => ({
   conversation: one(conversations, {
     fields: [workflowSteps.conversationId],
-    references: [conversations.id]
+    references: [conversations.id],
   }),
   message: one(messages, {
     fields: [workflowSteps.messageId],
-    references: [messages.id]
+    references: [messages.id],
   }),
   agent: one(agents, {
     fields: [workflowSteps.agentId],
-    references: [agents.id]
+    references: [agents.id],
   }),
   tool: one(tools, {
     fields: [workflowSteps.toolId],
-    references: [tools.id]
-  })
+    references: [tools.id],
+  }),
 }));
 ```
 
@@ -446,23 +463,27 @@ CREATE INDEX idx_workflow_steps_status ON workflow_steps(status);
 ### Creating a New Organization with Owner
 
 ```typescript
-import { db } from './database';
-import { organizations, users, organizationUsers } from './schema';
+import { db } from "./database";
+import { organizations, users, organizationUsers } from "./schema";
 
-async function createOrganization(name: string, ownerEmail: string, ownerName: string) {
+async function createOrganization(
+  name: string,
+  ownerEmail: string,
+  ownerName: string,
+) {
   return await db.transaction(async (tx) => {
     // Create organization
     const [organization] = await tx
       .insert(organizations)
       .values({
         name,
-        slug: name.toLowerCase().replace(/\s+/g, '-')
+        slug: name.toLowerCase().replace(/\s+/g, "-"),
       })
       .returning();
 
     // Create or find user
     let user = await tx.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, ownerEmail)
+      where: (users, { eq }) => eq(users.email, ownerEmail),
     });
 
     if (!user) {
@@ -470,7 +491,7 @@ async function createOrganization(name: string, ownerEmail: string, ownerName: s
         .insert(users)
         .values({
           email: ownerEmail,
-          name: ownerName
+          name: ownerName,
         })
         .returning();
       user = newUser;
@@ -480,7 +501,7 @@ async function createOrganization(name: string, ownerEmail: string, ownerName: s
     await tx.insert(organizationUsers).values({
       userId: user.id,
       organizationId: organization.id,
-      role: 'owner'
+      role: "owner",
     });
 
     return { organization, user };
@@ -491,19 +512,19 @@ async function createOrganization(name: string, ownerEmail: string, ownerName: s
 ### Recording Agent Workflow Steps
 
 ```typescript
-import { db } from './database';
-import { workflowSteps } from './schema';
+import { db } from "./database";
+import { workflowSteps } from "./schema";
 
 async function recordWorkflowStep(
   conversationId: string,
   agentId: string,
-  stepType: 'thinking' | 'tool_execution' | 'response',
+  stepType: "thinking" | "tool_execution" | "response",
   stepIndex: number,
   data: {
     messageId?: string;
     toolId?: string;
     toolInput?: Record<string, unknown>;
-  }
+  },
 ) {
   const startedAt = new Date();
 
@@ -518,8 +539,8 @@ async function recordWorkflowStep(
       stepIndex,
       toolId: data.toolId,
       toolInput: data.toolInput,
-      status: 'running',
-      startedAt
+      status: "running",
+      startedAt,
     })
     .returning();
 
@@ -528,11 +549,11 @@ async function recordWorkflowStep(
 
 async function completeWorkflowStep(
   stepId: string,
-  status: 'completed' | 'failed',
+  status: "completed" | "failed",
   data: {
     toolOutput?: Record<string, unknown>;
     error?: string;
-  }
+  },
 ) {
   const completedAt = new Date();
 
@@ -544,7 +565,7 @@ async function completeWorkflowStep(
       toolOutput: data.toolOutput,
       error: data.error,
       completedAt,
-      duration: completedAt.getTime() - new Date(step.startedAt).getTime()
+      duration: completedAt.getTime() - new Date(step.startedAt).getTime(),
     })
     .where(eq(workflowSteps.id, stepId))
     .returning();
@@ -559,17 +580,17 @@ The database schema will be migrated using Drizzle Kit, with proper versioning a
 
 ```typescript
 // drizzle.config.ts
-import type { Config } from 'drizzle-kit';
+import type { Config } from "drizzle-kit";
 
 export default {
-  schema: './src/db/schema.ts',
-  out: './drizzle',
-  driver: 'pg',
+  schema: "./src/db/schema.ts",
+  out: "./drizzle",
+  driver: "pg",
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL || ''
+    connectionString: process.env.DATABASE_URL || "",
   },
   verbose: true,
-  strict: true
+  strict: true,
 } satisfies Config;
 ```
 

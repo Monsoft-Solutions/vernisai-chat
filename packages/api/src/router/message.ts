@@ -39,7 +39,7 @@ export const messageRouter = router({
         conversationId: z.string(),
         limit: z.number().min(1).max(100).default(50),
         cursor: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -77,7 +77,7 @@ export const messageRouter = router({
         conversationId: z.string(),
         content: z.string().min(1),
         role: z.enum(["user", "assistant", "system"]).default("user"),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -108,7 +108,7 @@ export const messageRouter = router({
       z.object({
         conversationId: z.string(),
         content: z.string().min(1),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {

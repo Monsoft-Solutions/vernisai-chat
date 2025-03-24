@@ -33,7 +33,7 @@ export const organizationRouter = router({
     .input(
       z.object({
         name: z.string().min(1).max(100),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -67,7 +67,7 @@ export const organizationRouter = router({
             maxUsers: z.number().positive().optional(),
           })
           .optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       try {
@@ -98,7 +98,7 @@ export const organizationRouter = router({
       z.object({
         limit: z.number().min(1).max(100).default(10),
         cursor: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       try {

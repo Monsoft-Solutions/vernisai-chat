@@ -19,7 +19,7 @@ export const billingRouter = router({
         status: "active",
         currentPeriodStart: new Date().toISOString(),
         currentPeriodEnd: new Date(
-          Date.now() + 30 * 24 * 60 * 60 * 1000
+          Date.now() + 30 * 24 * 60 * 60 * 1000,
         ).toISOString(),
       };
     } catch (error) {
@@ -38,7 +38,7 @@ export const billingRouter = router({
     .input(
       z.object({
         period: z.enum(["day", "week", "month"]).default("month"),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       try {
@@ -72,7 +72,7 @@ export const billingRouter = router({
       z.object({
         planId: z.string(),
         organizationId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {

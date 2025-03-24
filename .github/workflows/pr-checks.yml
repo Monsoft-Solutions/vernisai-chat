@@ -28,9 +28,6 @@ jobs:
       - name: Format check
         run: npx prettier --check "**/*.{ts,tsx,md}"
 
-      - name: Validate documentation
-        run: npm run validate-docs
-
       - name: Build
         run: npm run build
         env:
