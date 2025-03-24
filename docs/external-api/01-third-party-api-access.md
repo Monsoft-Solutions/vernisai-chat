@@ -65,16 +65,16 @@ The API provides an OpenAPI specification accessible at `/api/openapi.json`. Thi
 
 ```typescript
 // Server-side generation of OpenAPI spec
-import { generateOpenApiDocument } from 'trpc-openapi';
-import { appRouter } from './router';
+import { generateOpenApiDocument } from "trpc-openapi";
+import { appRouter } from "./router";
 
 export const openApiDocument = generateOpenApiDocument(appRouter, {
-  title: 'VernisAI API',
-  description: 'API for the VernisAI application',
-  version: '1.0.0',
-  baseUrl: 'https://app.vernis.ai/api',
-  docsUrl: 'https://docs.vernis.ai',
-  tags: ['chat', 'agents', 'organizations', 'users']
+  title: "VernisAI API",
+  description: "API for the VernisAI application",
+  version: "1.0.0",
+  baseUrl: "https://app.vernis.ai/api",
+  docsUrl: "https://docs.vernis.ai",
+  tags: ["chat", "agents", "organizations", "users"],
 });
 ```
 
@@ -191,12 +191,12 @@ The API supports Server-Sent Events (SSE) for streaming responses from AI models
 ```javascript
 // Browser example
 const eventSource = new EventSource(
-  'https://app.vernis.ai/api/conversations/conv_123/messages/stream',
+  "https://app.vernis.ai/api/conversations/conv_123/messages/stream",
   {
     headers: {
-      Authorization: 'Bearer ' + apiKey
-    }
-  }
+      Authorization: "Bearer " + apiKey,
+    },
+  },
 );
 
 eventSource.onmessage = (event) => {
@@ -205,7 +205,7 @@ eventSource.onmessage = (event) => {
 };
 
 eventSource.onerror = (error) => {
-  console.error('EventSource error:', error);
+  console.error("EventSource error:", error);
   eventSource.close();
 };
 ```
@@ -328,19 +328,19 @@ For TypeScript applications, a dedicated SDK provides type-safe API access:
 ```typescript
 // Installation: npm install @vernisai/sdk
 
-import { createClient } from '@vernisai/sdk';
+import { createClient } from "@vernisai/sdk";
 
 const client = createClient({
-  apiKey: 'your_api_key',
-  baseUrl: 'https://app.vernis.ai/api'
+  apiKey: "your_api_key",
+  baseUrl: "https://app.vernis.ai/api",
 });
 
 // Type-safe API access
 async function sendMessage() {
   const result = await client.conversations.messages.create({
-    conversationId: 'conv_123456789',
-    content: 'Hello, AI!',
-    role: 'user'
+    conversationId: "conv_123456789",
+    content: "Hello, AI!",
+    role: "user",
   });
 
   console.log(result.content);

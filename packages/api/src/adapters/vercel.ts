@@ -8,7 +8,7 @@ import { createTRPCContext } from "../trpc";
  */
 export const nextApiHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   // Create a fetch request from the Next.js API request
   const request = new Request(
@@ -21,7 +21,7 @@ export const nextApiHandler = async (
         req.method !== "GET" && req.method !== "HEAD"
           ? JSON.stringify(req.body)
           : undefined,
-    }
+    },
   );
 
   // Use the tRPC fetch request handler to process the request

@@ -22,7 +22,7 @@ if (!fs.existsSync(outputDir)) {
 // Write the OpenAPI document to a file
 fs.writeFileSync(
   path.join(outputDir, "openapi.json"),
-  JSON.stringify(openApiDocument, null, 2)
+  JSON.stringify(openApiDocument, null, 2),
 );
 
 console.log("✅ OpenAPI document generated successfully!");

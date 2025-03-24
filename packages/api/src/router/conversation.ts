@@ -38,7 +38,7 @@ export const conversationRouter = router({
       z.object({
         limit: z.number().min(1).max(100).default(10),
         cursor: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       try {
@@ -76,7 +76,7 @@ export const conversationRouter = router({
     .input(
       z.object({
         title: z.string().min(1).max(100).optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       try {

@@ -245,7 +245,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -267,7 +267,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <button
@@ -306,7 +306,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {rightIcon && <span className="ml-2">{rightIcon}</span>}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";
@@ -334,12 +334,12 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           variant === "bordered" &&
             "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
           variant === "elevated" && "bg-white dark:bg-gray-800 shadow-md",
-          className
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );
 
 export const CardHeader = React.forwardRef<
@@ -350,7 +350,7 @@ export const CardHeader = React.forwardRef<
     ref={ref}
     className={cn(
       "px-6 py-4 border-b border-gray-200 dark:border-gray-700",
-      className
+      className,
     )}
     {...props}
   />
@@ -364,7 +364,7 @@ export const CardTitle = React.forwardRef<
     ref={ref}
     className={cn(
       "text-lg font-semibold leading-none tracking-tight",
-      className
+      className,
     )}
     {...props}
   />
@@ -396,7 +396,7 @@ export const CardFooter = React.forwardRef<
     ref={ref}
     className={cn(
       "px-6 py-4 border-t border-gray-200 dark:border-gray-700",
-      className
+      className,
     )}
     {...props}
   />
@@ -427,7 +427,7 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     { className, leftElement, rightElement, error, helperText, ...props },
-    ref
+    ref,
   ) => {
     return (
       <div className="w-full">
@@ -443,7 +443,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               leftElement && "pl-10",
               rightElement && "pr-10",
               error && "border-error focus:border-error focus:ring-error",
-              className
+              className,
             )}
             ref={ref}
             {...props}
@@ -458,7 +458,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <p
             className={cn(
               "mt-1 text-sm",
-              error ? "text-error" : "text-gray-500"
+              error ? "text-error" : "text-gray-500",
             )}
           >
             {error || helperText}
@@ -466,7 +466,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

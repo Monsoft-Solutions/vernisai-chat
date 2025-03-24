@@ -381,8 +381,8 @@ UI components should follow a consistent structure:
 ```typescript
 // Example component structure
 export type ButtonProps = {
-  variant: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size: 'sm' | 'md' | 'lg';
+  variant: "primary" | "secondary" | "outline" | "ghost";
+  size: "sm" | "md" | "lg";
   isLoading?: boolean;
   isDisabled?: boolean;
   leftIcon?: React.ReactNode;
@@ -392,14 +392,14 @@ export type ButtonProps = {
 };
 
 export const Button = ({
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   isLoading = false,
   isDisabled = false,
   leftIcon,
   rightIcon,
   onClick,
-  children
+  children,
 }: ButtonProps) => {
   // Component implementation
 };
@@ -415,11 +415,11 @@ const MessageBubble = ({ isUser, children }) => (
   <div
     className={`
       max-w-[80%] rounded-lg p-4 
-      ${isUser ? 'bg-primary-500 ml-auto text-white' : 'mr-auto bg-gray-100 text-gray-900'}
+      ${isUser ? "bg-primary-500 ml-auto text-white" : "mr-auto bg-gray-100 text-gray-900"}
     `}
     style={{
-      '--message-hue': isUser ? '210' : '0',
-      boxShadow: 'var(--shadow-md)'
+      "--message-hue": isUser ? "210" : "0",
+      boxShadow: "var(--shadow-md)",
     }}
   >
     {children}
@@ -440,7 +440,7 @@ The application supports both light and dark modes, with seamless transitions be
   --color-text-secondary: #4b5563;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --color-bg-primary: #111827;
   --color-bg-secondary: #1f2937;
   --color-text-primary: #f9fafb;
@@ -482,7 +482,7 @@ Images use modern formats and lazy loading:
 
 ```tsx
 // Example of optimized image usage
-import Image from 'next/image';
+import Image from "next/image";
 
 const Avatar = ({ user }) => (
   <div className="relative h-10 w-10 overflow-hidden rounded-full">

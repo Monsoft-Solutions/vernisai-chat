@@ -42,7 +42,7 @@ export const agentRouter = router({
         limit: z.number().min(1).max(100).default(10),
         cursor: z.string().optional(),
         isPublic: z.boolean().optional(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       try {
@@ -85,7 +85,7 @@ export const agentRouter = router({
         systemPrompt: z.string().min(1),
         isPublic: z.boolean().default(false),
         tools: z.array(z.string()).optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       try {
@@ -121,7 +121,7 @@ export const agentRouter = router({
         agentId: z.string(),
         input: z.string().min(1),
         conversationId: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
