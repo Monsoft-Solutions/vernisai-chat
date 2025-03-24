@@ -1,0 +1,60 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General Implementation Guidelines
+
+These guidelines ensure that every piece of work—whether code implementation or documentation—is robust, well-thought-out, and aligned with best practices.
+
+---
+
+## For Code Implementation Tasks
+
+- **Understand the Architecture:**  
+  Thoroughly review the project architecture and objectives to ensure your work aligns with the overall goals.
+
+ctices:**  
+  If needed, perform online searches to  practices, relevant technologies, and packages.
+
+- **Think Out Loud:**  
+  Before writing any code, articulate  Outline the approach, and detail your reasoning behind each decision.
+
+- **Seek Feedback:**  
+  When necessary, ask for user feedback on your plan, especially if there are areas that could benefit from additional input.
+
+- **Follow Language-Specific Guidelines:**  
+  - For TypeScript implementations, adhere to the rules in [typescript.rules.mdc](mdc:.cursor/rules/typescript.rules.mdc)
+  - For overall expert coding practices, follow the guidelines in [code-crafter.rules.mdc](mdc:.cursor/rules/code-crafter.rules.mdc)
+
+- **Ensure everyting is as expected**
+  - run npm run validate and then build. Fix possible 
+
+---
+
+## For Planning or Documentation Tasks
+
+- **Use Established Architectural Guidelines:**  
+  Refer to the guidelines in [software-engineer-and-architect.rules.mdc](mdc:.cursor/rules/software-engineer-and-architect.rules.mdc) to ensure your documentation and planning align with our architectural standards.
+
+- **Think Out Loud About the Plan:**  
+  Explain your roadmap, documentation structure, and implementation strategy as you plan. This helps in identifying potential gaps and improvements early.
+
+- **Critically Evaluate and Refine:**  
+  Assess your proposed solutions, refine them iteratively, and improve until they are optimal.
+
+- **Leverage Proven Approaches:**  
+  Follow and incorporate practices from successful implementations to ensure your solution is robust and effective.
+
+---
+
+## Always
+
+- **Outline First:**  
+  Before doing anything, create a clear outline of your approach. Review and refine it to ensure it covers all bases.
+
+- **Evaluate Before Execution:**  
+  Only execute your plan once you are completely confident that it represents the best solution possible.
+
+- **Iterative Improvement:**  
+  Continuously judge your work and make improvements until the final output meets all quality and functionality expectations.

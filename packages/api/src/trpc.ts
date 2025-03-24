@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 
 /**
  * Context interface for tRPC requests
@@ -30,6 +31,24 @@ export const createTRPCContext = async ({ req }: CreateNextContextOptions) => {
   const session = null; // Will be replaced with actual auth logic using req.headers.authorization
 
   // Extract organization ID from headers, query params, etc.
+  const organizationId = req.headers["x-organization-id"] as string | undefined;
+
+  return createInnerTRPCContext({
+    session,
+    organizationId,
+  });
+};
+
+/**
+ * Creates context for Express server requests
+ */
+export const createExpressContext = ({ req }: CreateExpressContextOptions) => {
+  // Extract authorization information from headers
+  const session = req.headers.authorization
+    ? { userId: "extract-from-auth-token" } // Will be replaced with actual auth logic
+    : null;
+
+  // Extract organization ID from headers
   const organizationId = req.headers["x-organization-id"] as string | undefined;
 
   return createInnerTRPCContext({

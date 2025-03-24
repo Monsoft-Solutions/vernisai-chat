@@ -5,7 +5,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "moduleResolution": "node",
-    "module": "ESNext"
+    "module": "CommonJS",
+    "moduleResolution": "node"
   }
 }

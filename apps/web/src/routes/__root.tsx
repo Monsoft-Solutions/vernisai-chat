@@ -37,6 +37,15 @@ export const Route = createRootRoute({
             >
               Chat
             </Link>
+            {process.env.NODE_ENV !== "production" && (
+              <Link
+                to="/env-test"
+                activeProps={{ className: "font-bold text-primary-500" }}
+                className="hover:text-primary-500 transition-colors text-amber-500"
+              >
+                Env Test
+              </Link>
+            )}
           </nav>
         </div>
       </header>

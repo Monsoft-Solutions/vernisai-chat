@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root";
+import { Route as EnvTestImport } from "./routes/env-test";
 import { Route as DashboardImport } from "./routes/dashboard";
 import { Route as AgentBuilderImport } from "./routes/agent-builder";
 import { Route as IndexImport } from "./routes/index";
@@ -21,6 +22,12 @@ import { Route as AgentCreateImport } from "./routes/agent/create";
 import { Route as AgentIdImport } from "./routes/agent/$id";
 
 // Create/Update Routes
+
+const EnvTestRoute = EnvTestImport.update({
+  id: "/env-test",
+  path: "/env-test",
+  getParentRoute: () => rootRoute,
+} as any);
 
 const DashboardRoute = DashboardImport.update({
   id: "/dashboard",
@@ -95,6 +102,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardImport;
       parentRoute: typeof rootRoute;
     };
+    "/env-test": {
+      id: "/env-test";
+      path: "/env-test";
+      fullPath: "/env-test";
+      preLoaderRoute: typeof EnvTestImport;
+      parentRoute: typeof rootRoute;
+    };
     "/agent/$id": {
       id: "/agent/$id";
       path: "/agent/$id";
@@ -139,6 +153,7 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
   "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
+  "/env-test": typeof EnvTestRoute;
   "/agent/$id": typeof AgentIdRoute;
   "/agent/create": typeof AgentCreateRoute;
   "/chat/$id": typeof ChatIdRoute;
@@ -150,6 +165,7 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
+  "/env-test": typeof EnvTestRoute;
   "/agent/$id": typeof AgentIdRoute;
   "/agent/create": typeof AgentCreateRoute;
   "/chat/$id": typeof ChatIdRoute;
@@ -162,6 +178,7 @@ export interface FileRoutesById {
   "/": typeof IndexRoute;
   "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
+  "/env-test": typeof EnvTestRoute;
   "/agent/$id": typeof AgentIdRoute;
   "/agent/create": typeof AgentCreateRoute;
   "/chat/$id": typeof ChatIdRoute;
@@ -175,6 +192,7 @@ export interface FileRouteTypes {
     | "/"
     | "/agent-builder"
     | "/dashboard"
+    | "/env-test"
     | "/agent/$id"
     | "/agent/create"
     | "/chat/$id"
@@ -185,6 +203,7 @@ export interface FileRouteTypes {
     | "/"
     | "/agent-builder"
     | "/dashboard"
+    | "/env-test"
     | "/agent/$id"
     | "/agent/create"
     | "/chat/$id"
@@ -195,6 +214,7 @@ export interface FileRouteTypes {
     | "/"
     | "/agent-builder"
     | "/dashboard"
+    | "/env-test"
     | "/agent/$id"
     | "/agent/create"
     | "/chat/$id"
@@ -207,6 +227,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   AgentBuilderRoute: typeof AgentBuilderRoute;
   DashboardRoute: typeof DashboardRoute;
+  EnvTestRoute: typeof EnvTestRoute;
   AgentIdRoute: typeof AgentIdRoute;
   AgentCreateRoute: typeof AgentCreateRoute;
   ChatIdRoute: typeof ChatIdRoute;
@@ -218,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentBuilderRoute: AgentBuilderRoute,
   DashboardRoute: DashboardRoute,
+  EnvTestRoute: EnvTestRoute,
   AgentIdRoute: AgentIdRoute,
   AgentCreateRoute: AgentCreateRoute,
   ChatIdRoute: ChatIdRoute,
@@ -238,6 +260,7 @@ export const routeTree = rootRoute
         "/",
         "/agent-builder",
         "/dashboard",
+        "/env-test",
         "/agent/$id",
         "/agent/create",
         "/chat/$id",
@@ -253,6 +276,9 @@ export const routeTree = rootRoute
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/env-test": {
+      "filePath": "env-test.tsx"
     },
     "/agent/$id": {
       "filePath": "agent/$id.tsx"

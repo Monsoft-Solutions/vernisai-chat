@@ -1,10 +1,5 @@
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { db, queryClient } from "./client";
-import * as dotenv from "dotenv";
-import path from "path";
-
-// Load environment variables from root .env.local file
-dotenv.config({ path: path.resolve(process.cwd(), "../../.env.local") });
 
 async function runMigration() {
   try {

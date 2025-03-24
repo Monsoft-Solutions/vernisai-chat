@@ -13,6 +13,17 @@ export * from "./router";
  */
 export * from "./adapters/vercel";
 export * from "./adapters/aws-lambda";
+export * from "./adapters/express";
+
+/**
+ * Export server
+ */
+export * from "./server";
+
+/**
+ * Export config
+ */
+export * from "./config";
 
 /**
  * Export type for OpenAPI document
