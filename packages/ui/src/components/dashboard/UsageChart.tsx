@@ -9,23 +9,34 @@ const EnhancedChart: React.FC<{ data: { date: string; value: number }[] }> = ({
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  // Check if data is empty and provide fallbacks
+  if (!data.length) {
+    return (
+      <div className="w-full h-40 flex items-center justify-center text-text-tertiary">
+        No usage data available for the selected period.
+      </div>
+    );
+  }
+
   // Find the max value for scaling
-  const maxValue = Math.max(...data.map((item) => item.value));
+  const maxValue = Math.max(...data.map((item) => item.value)) || 1; // Fallback to 1 if all values are 0
 
   // Calculate trend (comparing first and last data points)
-  const trend = data[data.length - 1].value > data[0].value;
+  const trend =
+    data.length > 1 ? data[data.length - 1].value > data[0].value : false;
 
   // Find the current day's usage percentage compared to the max
-  const currentPercentage = Math.round(
-    (data[data.length - 1].value / maxValue) * 100,
-  );
+  const currentPercentage =
+    maxValue > 0
+      ? Math.round((data[data.length - 1].value / maxValue) * 100)
+      : 0;
 
-  // Calculate day-to-day percentage change
+  // Calculate day-to-day percentage change with proper error handling
   const percentageChange =
-    data.length > 1
+    data.length > 1 && data[data.length - 2].value !== 0
       ? Math.round(
           ((data[data.length - 1].value - data[data.length - 2].value) /
-            data[data.length - 2].value) *
+            Math.max(data[data.length - 2].value, 1)) *
             100,
         )
       : 0;
@@ -64,7 +75,8 @@ const EnhancedChart: React.FC<{ data: { date: string; value: number }[] }> = ({
 
       <div className="w-full h-40 flex items-end space-x-0.5 relative">
         {data.map((item, index) => {
-          const height = `${(item.value / maxValue) * 100}%`;
+          const height =
+            maxValue > 0 ? `${(item.value / maxValue) * 100}%` : "0%";
           const isActive = hoveredIndex === index;
           const formattedDate = new Date(item.date).toLocaleDateString(
             "en-US",
@@ -108,7 +120,7 @@ const EnhancedChart: React.FC<{ data: { date: string; value: number }[] }> = ({
                     <span>Messages:</span>
                     <span className="font-medium">{item.value}</span>
                   </div>
-                  {index > 0 && (
+                  {index > 0 && data[index - 1].value > 0 && (
                     <div className="flex justify-between gap-4 items-center mt-1 text-[10px]">
                       <span>vs previous:</span>
                       <span
@@ -118,7 +130,7 @@ const EnhancedChart: React.FC<{ data: { date: string; value: number }[] }> = ({
                         {Math.abs(item.value - data[index - 1].value)}(
                         {Math.round(
                           ((item.value - data[index - 1].value) /
-                            data[index - 1].value) *
+                            Math.max(data[index - 1].value, 1)) *
                             100,
                         )}
                         %)

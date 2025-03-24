@@ -55,10 +55,16 @@ function Dashboard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
+            <button
+              className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+              onClick={() => navigate({ to: "/chat" })}
+            >
               <PlusIcon size={16} /> New Chat
             </button>
-            <button className="flex items-center gap-2 bg-white border border-border-default px-4 py-2 rounded-md hover:bg-background-secondary transition-colors">
+            <button
+              className="flex items-center gap-2 bg-white border border-border-default px-4 py-2 rounded-md hover:bg-background-secondary transition-colors"
+              onClick={() => navigate({ to: "/agent-builder" })}
+            >
               <PlusIcon size={16} /> New Agent
             </button>
           </div>
