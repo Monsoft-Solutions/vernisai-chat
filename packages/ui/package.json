@@ -3,24 +3,38 @@
   "version": "0.0.0",
   "exports": {
     ".": "./index.ts",
-    "./counter": "./components/counter.ts",
-    "./header": "./components/header.ts",
-    "./setup-counter": "./utils/counter.ts"
+    "./styles": "./src/styles/index.ts",
+    "./components": "./src/components/index.ts",
+    "./lib": "./src/lib/index.ts"
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.ts\""
+    "lint": "eslint \"**/*.ts\"",
+    "build": "tsup index.ts --format esm,cjs --dts --external react",
+    "dev": "tsup index.ts --format esm,cjs --watch --dts --external react"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.0.4",
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.335.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.2.2"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
     "@vernisai/eslint-config": "^0.0.0",
     "@vernisai/typescript-config": "^0.0.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "autoprefixer": "^10.4.18",
     "eslint": "^8.57.1",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "tsup": "^8.0.2",
     "typescript": "5.5.4"
   }
 }
