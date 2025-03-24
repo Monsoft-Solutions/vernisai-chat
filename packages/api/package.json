@@ -15,21 +15,28 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "lint": "eslint src/",
     "dev": "tsup --watch",
+    "dev:server": "cross-env API_SERVER_MODE=server tsx src/server.ts",
+    "start:server": "cross-env API_SERVER_MODE=server node dist/server.js",
     "generate:openapi": "tsx src/scripts/generate-openapi.ts"
   },
   "dependencies": {
     "@trpc/server": "^10.44.1",
     "@vernisai/database": "*",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
     "next": "^14.0.4",
     "superjson": "^2.2.1",
-    "zod": "^3.22.4",
-    "trpc-openapi": "^1.2.0"
+    "trpc-openapi": "^1.2.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "^20.17.25",
     "@types/aws-lambda": "^8.10.136",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.17.25",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
