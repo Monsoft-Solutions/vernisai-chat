@@ -17,7 +17,10 @@
     "dev": "ts-node --transpile-only src/server.ts",
     "dev:server": "cross-env API_SERVER_MODE=server node dist/server.js",
     "start:server": "cross-env API_SERVER_MODE=server node dist/server.js",
-    "generate:openapi": "tsx src/scripts/generate-openapi.ts"
+    "generate:openapi": "tsx src/scripts/generate-openapi.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@monsoft/vernisai-config": "*",
@@ -37,12 +40,14 @@
     "@types/node": "^20.17.25",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@vernisai/testing": "*",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
     "tsx": "^4.19.3",
     "typescript": "^5.3.3",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "vitest": "^3.0.9"
   }
 }

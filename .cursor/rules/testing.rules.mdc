@@ -1,0 +1,196 @@
+---
+description: Guidelines for creating tests for the VernisAI Chat application
+globs: 
+alwaysApply: false
+---
+
+# Testing Guidelines for VernisAI Chat
+
+These guidelines ensure consistent, maintainable, and effective tests across the VernisAI Chat application. They are based on our [Testing Documentation](./docs/testing/index.md).
+
+## Testing Framework
+
+- **Vitest**: We use Vitest as our primary testing framework for unit and integration tests 
+  - Reference: [Testing Overview](./docs/testing/01-testing-overview.md)
+  - Configuration is available in each package's `vitest.config.ts` file
+
+## General Testing Principles
+
+- **Follow the testing pyramid**: Prioritize unit tests (most numerous), followed by integration tests, and then end-to-end tests (fewest)
+- **Keep tests independent**: Each test should run in isolation without depending on other tests
+- **Use descriptive test names**: Names should clearly indicate what is being tested and expected behavior
+- **One assertion per test**: When possible, keep tests focused on a single assertion
+- **Avoid test interdependence**: Tests should not rely on the state from other tests
+
+See: [Unit Testing](./docs/testing/03-unit-testing.md)
+
+## Test Structure
+
+- Structure tests using the Arrange-Act-Assert pattern:
+  ```typescript
+  it("should do something", () => {
+    // Arrange - setup the test data
+    const input = { /* ... */ };
+    
+    // Act - perform the action being tested
+    const result = functionUnderTest(input);
+    
+    // Assert - verify the expected outcome
+    expect(result).toEqual(expectedOutput);
+  });
+  ```
+
+- Group related tests with `describe` blocks:
+  ```typescript
+  describe("MyComponent", () => {
+    describe("when initialized", () => {
+      it("should have default state", () => {
+        // Test initialization
+      });
+    });
+    
+    describe("when user interacts", () => {
+      it("should update state", () => {
+        // Test interaction
+      });
+    });
+  });
+  ```
+
+## TypeScript Testing Best Practices
+
+- **Type all test data**: Ensure all test data and mocks have proper TypeScript types
+- **Avoid using `any`**: Use specific types or `unknown` when type is uncertain
+- **Export test types in dedicated files**: Place test-specific types in separate files within the test directory
+- **Use type-safe mocks**: Ensure mocked functions and objects match the correct interface
+
+See: [Base Testing Package](./docs/testing/02-base-testing-package.md)
+
+## TRPC Testing Guidelines
+
+- **Test handlers directly**: Extract handler functions from procedures for direct testing
+  ```typescript
+  // Define handlers separate from the router
+  const myProcedureHandler = ({ input, ctx }: { input: MyInput; ctx: Context }) => {
+    // Handler logic
+  };
+  
+  // Use in router definition
+  const myRouter = router({
+    myProcedure: publicProcedure
+      .input(myInputSchema)
+      .query(myProcedureHandler)
+  });
+  
+  // Test directly in test files
+  it("should handle procedure correctly", async () => {
+    const result = await myProcedureHandler({ input, ctx });
+    expect(result).toEqual(expected);
+  });
+  ```
+
+- **Create proper test contexts**: Use the test utilities to create appropriate contexts
+  ```typescript
+  // For authenticated contexts
+  const ctx = createTestContext();
+  
+  // For unauthenticated contexts
+  const ctx = createTestContext({ session: null });
+  
+  // For custom contexts
+  const ctx = createTestContext({ 
+    session: { userId: "custom-id" },
+    organizationId: "custom-org"
+  });
+  ```
+
+- **Test error cases using regex**: Check for error messages with regex patterns
+  ```typescript
+  expect(() => functionThatThrows()).toThrow(TRPCError);
+  expect(() => functionThatThrows()).toThrow(/Expected error message/);
+  ```
+
+See: [API Testing](./docs/testing/04-api-testing.md)
+
+## Mocking Best Practices
+
+- **Reset mocks between tests**: Use `beforeEach(() => { vi.clearAllMocks() })` to reset mock state
+- **Type your mocks**: Define types for mock services and functions
+  ```typescript
+  const mockService = {
+    getData: vi.fn<[string], Promise<MyDataType>>(),
+    saveData: vi.fn<[string, MyDataType], Promise<boolean>>()
+  };
+  ```
+
+- **Specify mock implementations**: Set up mock implementations for expected behavior
+  ```typescript
+  mockService.getData.mockResolvedValue({ id: "1", name: "Test" });
+  mockService.saveData.mockImplementation((id, data) => Promise.resolve(true));
+  ```
+
+- **Verify mock calls**: Check that mocks were called with expected parameters
+  ```typescript
+  expect(mockService.getData).toHaveBeenCalledWith("test-id");
+  expect(mockService.getData).toHaveBeenCalledTimes(1);
+  ```
+
+## React Component Testing
+
+- **Prefer testing user behavior over implementation details**
+- **Use React Testing Library patterns**: Focus on how users interact with components
+- **Use screen queries properly**: Prefer accessible queries (role, label, text)
+- **Test user interactions with userEvent**: Simulate realistic user behavior
+
+See: [Web Testing](./docs/testing/07-web-testing.md)
+
+## API Testing Guidelines
+
+- Create explicit test files for each API router
+- Test both authorized and unauthorized access scenarios
+- Test input validation and error handling
+- Verify proper business logic execution
+- Test edge cases and boundary conditions
+
+See: [API Testing](./docs/testing/04-api-testing.md)
+
+## Database Testing Guidelines
+
+- Use mock database implementations for unit tests
+- Test schema validation and data integrity
+- Test migration scripts for schema changes
+- Use real database instances for integration tests
+
+See: [Database Testing](./docs/testing/05-database-testing.md)
+
+## Testing Utilities
+
+- Use the `@vernisai/testing` package for shared utilities:
+  - `setupCustomMatchers` for enhanced assertions
+  - `createTypedMock` for type-safe mock creation
+  - `createTestContext` for TRPC context creation
+
+## Custom Matchers
+
+Use provided custom matchers for cleaner assertions:
+
+- `toBeSuccessful()`: Check if result has a success property set to true
+- `toHaveSucceeded()`: Alias for toBeSuccessful
+- `toBeDateNear(date, toleranceMs)`: Check if a date is close to expected
+- `toBeWithinDaysOf(date, days)`: Check if a date is within X days of expected
+- `toHaveBeenCalledAtLeastOnceWith(args)`: Check if mock was called with specified args at least once
+
+## End-to-End Testing
+
+- Use Playwright for end-to-end testing
+- Implement Page Object Model pattern for test organization
+- Test critical user flows and scenarios
+- Include cross-browser and responsive testing
+
+See: [End-to-End Testing with Playwright](./docs/testing/08-e2e-testing.md)
+
+## Integration with CI/CD
+
+- All tests should pass with `npm run test`
+- Ensure proper test coverage with `npm run test:coverage`
+- Tests should be fast enough to run in CI without timeout issues
