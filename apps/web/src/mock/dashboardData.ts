@@ -1,3 +1,5 @@
+import { Agent, agents } from "./agents";
+
 export type OrganizationInfo = {
   name: string;
   activeUsers: number;
@@ -12,14 +14,6 @@ export type Conversation = {
   lastMessageAt: Date;
   model: string;
   snippet: string;
-};
-
-export type Agent = {
-  id: string;
-  name: string;
-  description: string;
-  capabilities: string[];
-  avatarUrl?: string;
 };
 
 export type UsageData = {
@@ -68,40 +62,7 @@ export const mockRecentConversations: Conversation[] = [
   },
 ];
 
-export const mockAgents: Agent[] = [
-  {
-    id: "1",
-    name: "Marketing Assistant",
-    description: "Helps create and refine marketing campaigns and content",
-    capabilities: [
-      "Content Creation",
-      "Campaign Planning",
-      "Audience Analysis",
-    ],
-    avatarUrl: "/avatars/marketing-agent.svg",
-  },
-  {
-    id: "2",
-    name: "Data Analyst",
-    description: "Analyzes data and generates insights and visualizations",
-    capabilities: ["Data Analysis", "Chart Generation", "Trend Identification"],
-    avatarUrl: "/avatars/data-agent.svg",
-  },
-  {
-    id: "3",
-    name: "Customer Support",
-    description: "Assists with customer queries and support ticket management",
-    capabilities: ["Query Resolution", "Ticket Management", "Knowledge Base"],
-    avatarUrl: "/avatars/support-agent.svg",
-  },
-  {
-    id: "4",
-    name: "Code Assistant",
-    description: "Helps write, review, and debug code across various languages",
-    capabilities: ["Code Generation", "Code Review", "Debugging"],
-    avatarUrl: "/avatars/code-agent.svg",
-  },
-];
+export const mockAgents: Agent[] = agents.slice(0, 4);
 
 export const mockUsageData: UsageData[] = Array.from({ length: 30 }, (_, i) => {
   const date = new Date();

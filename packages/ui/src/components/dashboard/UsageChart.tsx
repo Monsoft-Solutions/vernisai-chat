@@ -1,33 +1,137 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
+import { BadgeCheck, TrendingUp, TrendingDown } from "lucide-react";
 
-// This is a placeholder for a real chart component
-// In a real implementation, you'd use a library like Recharts
-const SimpleChart: React.FC<{ data: { date: string; value: number }[] }> = ({
+// Enhanced chart component with better visual elements
+const EnhancedChart: React.FC<{ data: { date: string; value: number }[] }> = ({
   data,
 }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   // Find the max value for scaling
   const maxValue = Math.max(...data.map((item) => item.value));
 
+  // Calculate trend (comparing first and last data points)
+  const trend = data[data.length - 1].value > data[0].value;
+
+  // Find the current day's usage percentage compared to the max
+  const currentPercentage = Math.round(
+    (data[data.length - 1].value / maxValue) * 100,
+  );
+
+  // Calculate day-to-day percentage change
+  const percentageChange =
+    data.length > 1
+      ? Math.round(
+          ((data[data.length - 1].value - data[data.length - 2].value) /
+            data[data.length - 2].value) *
+            100,
+        )
+      : 0;
+
   return (
-    <div className="w-full h-40 flex items-end space-x-1">
-      {data.map((item, index) => {
-        const height = `${(item.value / maxValue) * 100}%`;
-        return (
-          <div key={index} className="flex-1 flex flex-col items-center group">
-            <div
-              className="w-full bg-primary/80 rounded-t hover:bg-primary transition-colors"
-              style={{ height }}
-            >
-              <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-background border rounded px-2 py-1 text-xs pointer-events-none">
-                {item.date}: {item.value} messages
+    <>
+      <div className="w-full mb-4 bg-background-secondary p-3 rounded-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div>
+            <div className="text-sm text-text-tertiary mb-1">Current Usage</div>
+            <div className="flex items-center gap-2">
+              <div className="text-2xl font-semibold">
+                {data[data.length - 1].value}
+              </div>
+              <div
+                className={`text-xs px-2 py-1 rounded-full flex items-center ${percentageChange >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+              >
+                {percentageChange >= 0 ? (
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 mr-1" />
+                )}
+                {percentageChange >= 0 ? "+" : ""}
+                {percentageChange}%
               </div>
             </div>
           </div>
-        );
-      })}
-    </div>
+          <div className="flex items-center mt-2 sm:mt-0">
+            <BadgeCheck
+              className={`h-5 w-5 mr-2 ${currentPercentage > 80 ? "text-amber-500" : "text-green-500"}`}
+            />
+            <span className="text-sm">{currentPercentage}% of limit used</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full h-40 flex items-end space-x-0.5 relative">
+        {data.map((item, index) => {
+          const height = `${(item.value / maxValue) * 100}%`;
+          const isActive = hoveredIndex === index;
+          const formattedDate = new Date(item.date).toLocaleDateString(
+            "en-US",
+            {
+              month: "short",
+              day: "numeric",
+            },
+          );
+
+          return (
+            <div
+              key={index}
+              className="flex-1 flex flex-col items-center group"
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <div
+                className={`w-full rounded-t transition-all ${
+                  isActive
+                    ? "bg-primary"
+                    : trend
+                      ? "bg-primary/60"
+                      : "bg-primary/40"
+                }`}
+                style={{ height }}
+              ></div>
+              {/* Only show date labels on every 3rd bar or when hovered for cleaner UI */}
+              {(index % 3 === 0 || isActive) && (
+                <div
+                  className={`text-[8px] sm:text-[10px] mt-1 text-text-tertiary whitespace-nowrap transform rotate-45 origin-left sm:transform-none ${isActive ? "font-medium text-text-primary" : ""}`}
+                >
+                  {formattedDate}
+                </div>
+              )}
+
+              {/* Tooltip */}
+              {isActive && (
+                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-background-primary shadow-lg border rounded px-3 py-2 text-xs z-10 pointer-events-none">
+                  <div className="font-medium">{formattedDate}</div>
+                  <div className="flex justify-between gap-4 items-center">
+                    <span>Messages:</span>
+                    <span className="font-medium">{item.value}</span>
+                  </div>
+                  {index > 0 && (
+                    <div className="flex justify-between gap-4 items-center mt-1 text-[10px]">
+                      <span>vs previous:</span>
+                      <span
+                        className={`${item.value > data[index - 1].value ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {item.value > data[index - 1].value ? "↑" : "↓"}
+                        {Math.abs(item.value - data[index - 1].value)}(
+                        {Math.round(
+                          ((item.value - data[index - 1].value) /
+                            data[index - 1].value) *
+                            100,
+                        )}
+                        %)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };
 
@@ -47,6 +151,14 @@ export const UsageChart: React.FC<UsageChartProps> = ({ data, title }) => {
     timeRange === "week"
       ? data.slice(-7) // Last 7 days
       : data; // Full month
+
+  // Calculate total and average metrics
+  const totalMessages = filteredData.reduce((sum, item) => sum + item.value, 0);
+  const averagePerDay = Math.round(totalMessages / filteredData.length);
+  const maxDay = filteredData.reduce(
+    (max, item) => (item.value > max.value ? item : max),
+    filteredData[0],
+  );
 
   return (
     <Card className="h-full flex flex-col">
@@ -70,19 +182,23 @@ export const UsageChart: React.FC<UsageChartProps> = ({ data, title }) => {
         </div>
       </CardHeader>
       <CardContent className="px-6 pt-0 pb-6 flex-grow">
-        <SimpleChart data={filteredData} />
-        <div className="mt-4 flex justify-between text-xs text-muted-foreground">
-          <div>
-            Total Messages:{" "}
-            {filteredData.reduce((sum, item) => sum + item.value, 0)}
+        <EnhancedChart data={filteredData} />
+
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div className="bg-background-secondary p-3 rounded-lg">
+            <div className="text-text-tertiary mb-1">Total Messages</div>
+            <div className="text-lg font-medium">{totalMessages}</div>
           </div>
-          <div>
-            Average:{" "}
-            {Math.round(
-              filteredData.reduce((sum, item) => sum + item.value, 0) /
-                filteredData.length,
-            )}{" "}
-            per day
+          <div className="bg-background-secondary p-3 rounded-lg">
+            <div className="text-text-tertiary mb-1">Daily Average</div>
+            <div className="text-lg font-medium">{averagePerDay}</div>
+          </div>
+          <div className="bg-background-secondary p-3 rounded-lg">
+            <div className="text-text-tertiary mb-1">Peak Day</div>
+            <div className="text-lg font-medium">{maxDay.value}</div>
+            <div className="text-[10px] text-text-tertiary">
+              {new Date(maxDay.date).toLocaleDateString()}
+            </div>
           </div>
         </div>
       </CardContent>

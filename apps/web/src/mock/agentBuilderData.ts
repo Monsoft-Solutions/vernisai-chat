@@ -1,3 +1,5 @@
+import { agents } from "./agents";
+
 export type Tool = {
   id: string;
   name: string;
@@ -155,6 +157,7 @@ export const mockAgentTemplates = [
       "You are a helpful customer support agent. Your goal is to assist customers with their inquiries and resolve their issues efficiently and professionally. Always maintain a polite and friendly tone.",
     recommendedTools: ["document-reader", "web-search"],
     model: "gpt-4",
+    icon: agents.find((agent) => agent.name === "Customer Support")?.icon,
   },
   {
     id: "research-assistant",
@@ -164,6 +167,7 @@ export const mockAgentTemplates = [
       "You are a research assistant with expertise in gathering, analyzing, and synthesizing information from various sources. Provide comprehensive, balanced, and accurate information based on verified sources.",
     recommendedTools: ["web-search", "document-reader", "data-analysis"],
     model: "claude-3-opus",
+    icon: agents.find((agent) => agent.name === "Research Assistant")?.icon,
   },
   {
     id: "creative-writer",
@@ -173,6 +177,7 @@ export const mockAgentTemplates = [
       "You are a creative writer skilled in various writing styles and formats. Help users generate creative content such as stories, poems, scripts, and marketing copy.",
     recommendedTools: [],
     model: "claude-3-sonnet",
+    icon: agents.find((agent) => agent.name === "Creative Writer")?.icon,
   },
   {
     id: "data-analyst",
@@ -182,5 +187,6 @@ export const mockAgentTemplates = [
       "You are a data analyst capable of processing, analyzing, and visualizing data. Help users interpret data, identify trends, and extract actionable insights.",
     recommendedTools: ["data-analysis", "calculator"],
     model: "gpt-4",
+    icon: agents.find((agent) => agent.name === "Data Analyst")?.icon,
   },
 ];

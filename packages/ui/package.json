@@ -11,8 +11,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint \"**/*.ts\"",
-    "build": "tsup index.ts --format esm,cjs --dts --external react",
-    "dev": "tsup index.ts --format esm,cjs --watch --dts --external react"
+    "build": "tsup index.ts --format esm,cjs --dts --external react"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
