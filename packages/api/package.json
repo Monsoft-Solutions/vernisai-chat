@@ -14,12 +14,13 @@
     "build": "tsup",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "lint": "eslint src/",
-    "dev": "tsup --watch",
-    "dev:server": "cross-env API_SERVER_MODE=server tsx src/server.ts",
+    "dev": "npm run build && cross-env API_SERVER_MODE=server node dist/server.js",
+    "dev:server": "cross-env API_SERVER_MODE=server node dist/server.js",
     "start:server": "cross-env API_SERVER_MODE=server node dist/server.js",
     "generate:openapi": "tsx src/scripts/generate-openapi.ts"
   },
   "dependencies": {
+    "@monsoft/vernisai-config": "*",
     "@trpc/server": "^10.44.1",
     "@vernisai/database": "*",
     "cors": "^2.8.5",

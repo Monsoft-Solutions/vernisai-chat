@@ -71,6 +71,8 @@ This is a monorepo managed with Turborepo containing the following apps and pack
    # Update the values in .env.local with your configuration
    ```
 
+   The only required environment variable is `DATABASE_URL`. All other variables have sensible defaults. See [Environment Configuration](docs/core-architecture/04-environment-configuration.md) for details.
+
 4. Start the development server
    ```sh
    npm run dev
@@ -78,12 +80,19 @@ This is a monorepo managed with Turborepo containing the following apps and pack
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
+- `npm run dev` - Start all development servers
+- `npm run dev:web` - Start web app development server
+- `npm run dev:api` - Start API development server
+- `npm run dev:all` - Start both web and API servers concurrently
+- `npm run start` - Start all production servers
+- `npm run start:web` - Start web app production server
+- `npm run start:api` - Start API production server
+- `npm run start:all` - Start both web and API production servers concurrently
 - `npm run build` - Build for production
 - `npm run lint` - Lint code
 - `npm run format` - Format code with Prettier
-- `npm run validate` - Run validation checks including docs validation
-- `npm run validate-docs` - Validate documentation
+- `npm run validate` - Run validation checks including linting, formatting and building
+- `npm run clean` - Clean all build artifacts and node_modules
 
 ## Documentation
 

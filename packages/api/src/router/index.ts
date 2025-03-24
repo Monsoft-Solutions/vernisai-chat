@@ -5,17 +5,19 @@ import { conversationRouter } from "./conversation";
 import { messageRouter } from "./message";
 import { agentRouter } from "./agent";
 import { billingRouter } from "./billing";
+import { testRouter } from "./test";
 
 /**
  * Main application router that combines all sub-routers
  */
 export const appRouter = router({
-  users: userRouter,
-  organizations: organizationRouter,
-  conversations: conversationRouter,
-  messages: messageRouter,
-  agents: agentRouter,
+  user: userRouter,
+  organization: organizationRouter,
+  conversation: conversationRouter,
+  message: messageRouter,
+  agent: agentRouter,
   billing: billingRouter,
+  test: testRouter,
 });
 
 /**

@@ -9,6 +9,8 @@ import { startExpressServer } from "./adapters/express";
  * @returns The server instance if started, or null if in serverless mode
  */
 export const startServer = () => {
+  console.log("STarting the server...");
+  console.log("config", config);
   if (config.serverMode === "server") {
     return startExpressServer();
   }
