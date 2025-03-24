@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -22,7 +24,53 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run validation
-        run: npm run validate
+      - name: Cache Turbo build outputs
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
+
+      - name: Check for dependency issues
+        run: npm audit --production
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint -- --cache-dir=.turbo/cache
+
+      - name: Build
+        run: npm run build -- --cache-dir=.turbo/cache
         env:
           NODE_ENV: production
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Turbo build outputs
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
+
+      - name: Run tests
+        run: npm run test

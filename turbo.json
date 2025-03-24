@@ -1,15 +1,42 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env", ".env.local"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": [
+        "src/**",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts",
+        "public/**",
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts"
+      ],
       "outputs": ["dist/**"]
     },
-    "lint": {},
+    "lint": {
+      "dependsOn": [],
+      "outputs": [],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        ".eslintrc.js",
+        ".eslintignore",
+        "tsconfig.json"
+      ]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "clean": {
+      "cache": false
     }
   }
 }
