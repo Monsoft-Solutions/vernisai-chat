@@ -27,6 +27,9 @@ ctices:**
   - For TypeScript implementations, adhere to the rules in [typescript.rules.mdc](mdc:.cursor/rules/typescript.rules.mdc)
   - For overall expert coding practices, follow the guidelines in [code-crafter.rules.mdc](mdc:.cursor/rules/code-crafter.rules.mdc)
 
+- **Ensure everyting is as expected**
+  - run npm run validate and then build. Fix possible 
+
 ---
 
 ## For Planning or Documentation Tasks
