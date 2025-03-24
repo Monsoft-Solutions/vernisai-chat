@@ -1,0 +1,39 @@
+{
+  "name": "@monsoft/vernisai-api",
+  "version": "0.1.0",
+  "description": "API for VernisAI - AI-powered chat and intelligent agents",
+  "author": "Monsoft Solutions - https://monsoftsolutions.com",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "lint": "eslint src/",
+    "dev": "tsup --watch",
+    "generate:openapi": "tsx src/scripts/generate-openapi.ts"
+  },
+  "dependencies": {
+    "@trpc/server": "^10.44.1",
+    "@vernisai/database": "*",
+    "next": "^14.0.4",
+    "superjson": "^2.2.1",
+    "zod": "^3.22.4",
+    "trpc-openapi": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.25",
+    "@types/aws-lambda": "^8.10.136",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.3.3"
+  }
+}
