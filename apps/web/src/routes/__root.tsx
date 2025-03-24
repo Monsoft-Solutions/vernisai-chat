@@ -41,7 +41,7 @@ export const Route = createRootRoute({
         </div>
       </header>
 
-      <main className="container mx-auto p-4">
+      <main className=" mx-auto">
         <Outlet />
       </main>
 

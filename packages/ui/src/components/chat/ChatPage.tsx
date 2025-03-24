@@ -12,7 +12,7 @@ import {
   SlidersHorizontalIcon,
   Share2Icon,
   InfoIcon,
-  ArrowLeftIcon,
+  XIcon,
 } from "lucide-react";
 import type { ChatSession, Tool } from "./types";
 
@@ -20,10 +20,33 @@ import type { ChatSession, Tool } from "./types";
  * Props for the ChatHeader component
  */
 type ChatHeaderProps = {
+  /**
+   * Title of the conversation
+   */
   title?: string;
+  /**
+   * Name of the agent being used
+   */
   agentName?: string;
+  /**
+   * Handler for toggling the sidebar
+   */
   onToggleSidebar?: () => void;
+  /**
+   * Handler for toggling the context panel
+   */
   onToggleContext?: () => void;
+  /**
+   * Whether the sidebar is currently shown
+   */
+  sidebarVisible?: boolean;
+  /**
+   * Whether the context panel is currently shown
+   */
+  contextVisible?: boolean;
+  /**
+   * Optional class name for custom styling
+   */
   className?: string;
 };
 
@@ -35,12 +58,14 @@ function ChatHeader({
   agentName,
   onToggleSidebar,
   onToggleContext,
+  sidebarVisible,
+  contextVisible,
   className,
 }: ChatHeaderProps) {
   return (
     <header
       className={cn(
-        "flex items-center justify-between px-4 py-2 h-14 border-b border-border-default bg-background-primary",
+        "flex items-center justify-between px-3 sm:px-4 py-2 h-14 border-b border-border-default bg-background-primary",
         className,
       )}
     >
@@ -49,34 +74,30 @@ function ChatHeader({
           variant="ghost"
           size="icon"
           onClick={onToggleSidebar}
-          className="mr-2 md:hidden h-9 w-9"
-          aria-label="Toggle sidebar"
+          className="mr-2 h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
+          aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+          title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
         >
-          <MenuIcon className="h-5 w-5" />
+          {sidebarVisible ? (
+            <XIcon className="h-4 w-4" />
+          ) : (
+            <MenuIcon className="h-4 w-4" />
+          )}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleSidebar}
-          className="mr-2 hidden md:flex h-9 w-9"
-          aria-label="Back to chats"
-        >
-          <ArrowLeftIcon className="h-5 w-5" />
-        </Button>
-        <div className="flex items-center">
+        <div className="flex items-center min-w-0">
           {agentName && (
-            <Avatar className="h-7 w-7 mr-2 border border-border-default">
+            <Avatar className="h-7 w-7 mr-2 border border-border-default hidden sm:flex">
               <AvatarFallback className="text-xs bg-secondary/10 text-secondary">
                 AI
               </AvatarFallback>
             </Avatar>
           )}
-          <div className="flex flex-col">
-            <h1 className="text-sm font-medium truncate max-w-[180px] sm:max-w-xs md:max-w-md">
+          <div className="flex flex-col min-w-0">
+            <h1 className="text-sm font-medium truncate max-w-[160px] sm:max-w-[200px] md:max-w-md">
               {title}
             </h1>
             {agentName && (
-              <span className="text-xs text-text-tertiary">
+              <span className="text-xs text-text-tertiary truncate max-w-[160px] sm:max-w-[200px] md:max-w-md">
                 Using {agentName}
               </span>
             )}
@@ -87,7 +108,7 @@ function ChatHeader({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-text-tertiary"
+          className="h-8 w-8 text-text-tertiary hidden sm:flex"
           title="Share conversation"
         >
           <Share2Icon className="h-4 w-4" />
@@ -95,7 +116,7 @@ function ChatHeader({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-text-tertiary"
+          className="h-8 w-8 text-text-tertiary hidden sm:flex"
           title="Conversation info"
         >
           <InfoIcon className="h-4 w-4" />
@@ -105,9 +126,16 @@ function ChatHeader({
           size="icon"
           className="h-8 w-8 text-text-tertiary"
           onClick={onToggleContext}
-          title="Toggle context panel"
+          aria-label={
+            contextVisible ? "Hide context panel" : "Show context panel"
+          }
+          title={contextVisible ? "Hide context panel" : "Show context panel"}
         >
-          <SlidersHorizontalIcon className="h-4 w-4" />
+          {contextVisible ? (
+            <XIcon className="h-4 w-4" />
+          ) : (
+            <SlidersHorizontalIcon className="h-4 w-4" />
+          )}
         </Button>
         <Button
           variant="ghost"
@@ -168,49 +196,116 @@ export function ChatPage({
   onSendMessage,
   className,
 }: ChatPageProps) {
-  const [showSidebar, setShowSidebar] = React.useState(true);
-  const [showContext, setShowContext] = React.useState(true);
+  // State for sidebar and context panel visibility
+  const [showSidebar, setShowSidebar] = React.useState(false);
+  const [showContext, setShowContext] = React.useState(false);
+  const [windowWidth, setWindowWidth] = React.useState(
+    globalThis.innerWidth || 0,
+  );
 
+  // Current chat session
   const currentSession = React.useMemo(() => {
     return sessions.find((session) => session.id === currentSessionId);
   }, [sessions, currentSessionId]);
 
-  // Toggle sidebar on mobile
+  // Handle window resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Initial call
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Automatically adjust sidebar and context visibility based on screen size
+  React.useEffect(() => {
+    if (windowWidth >= 1024) {
+      // Desktop
+      setShowSidebar(true);
+      setShowContext(true);
+    } else if (windowWidth >= 768) {
+      // Tablet
+      setShowSidebar(true);
+      setShowContext(false);
+    } else {
+      // Mobile
+      setShowSidebar(false);
+      setShowContext(false);
+    }
+  }, [windowWidth]);
+
+  // Toggle sidebar
   const toggleSidebar = React.useCallback(() => {
     setShowSidebar((prev) => !prev);
-  }, []);
+    // Close context panel on mobile when opening sidebar
+    if (windowWidth < 768 && !showSidebar) {
+      setShowContext(false);
+    }
+  }, [showSidebar, windowWidth]);
 
   // Toggle context panel
   const toggleContext = React.useCallback(() => {
     setShowContext((prev) => !prev);
-  }, []);
+    // Close sidebar on mobile when opening context panel
+    if (windowWidth < 768 && !showContext) {
+      setShowSidebar(false);
+    }
+  }, [showContext, windowWidth]);
 
   return (
-    <div className={cn("flex h-full", className)}>
+    <div className={cn("flex h-full bg-background-primary", className)}>
       {/* Sidebar */}
       <div
         className={cn(
-          "w-64 md:w-80 border-r border-border-default fixed inset-y-0 z-20 bg-background-secondary transition-transform md:relative md:translate-x-0",
-          showSidebar ? "translate-x-0" : "-translate-x-full",
+          "w-72 md:w-80 border-r border-border-default fixed inset-y-0 z-30 bg-background-secondary transition-transform duration-300 ease-in-out",
+          windowWidth >= 1024
+            ? "lg:relative lg:translate-x-0"
+            : showSidebar
+              ? "translate-x-0"
+              : "-translate-x-full",
         )}
       >
         <Sidebar
           sessions={sessions}
           currentSessionId={currentSessionId}
           onNewChat={onNewChat}
-          onSelectSession={onSelectSession}
+          onSelectSession={(id) => {
+            onSelectSession?.(id);
+            // Auto-close sidebar on mobile after selection
+            if (windowWidth < 768) {
+              setShowSidebar(false);
+            }
+          }}
           className="h-full w-full"
         />
       </div>
 
       {/* Main chat area */}
-      <div className="flex flex-1 flex-col overflow-hidden relative">
+      <div
+        className={cn(
+          "flex flex-1 flex-col overflow-hidden relative",
+          windowWidth >= 1024
+            ? showSidebar && showContext
+              ? "lg:mx-0"
+              : showSidebar || showContext
+                ? "lg:mx-0"
+                : "lg:mx-auto lg:max-w-4xl"
+            : "mx-0",
+        )}
+      >
         {/* Chat header */}
         <ChatHeader
           title={currentSession?.name || "New Conversation"}
           agentName={currentSession?.agentName}
           onToggleSidebar={toggleSidebar}
           onToggleContext={toggleContext}
+          sidebarVisible={showSidebar}
+          contextVisible={showContext}
         />
 
         {/* Message history */}
@@ -232,8 +327,12 @@ export function ChatPage({
       {/* Context panel */}
       <div
         className={cn(
-          "w-80 lg:w-96 border-l border-border-default fixed right-0 inset-y-0 z-20 bg-background-secondary transition-transform lg:relative lg:translate-x-0",
-          showContext ? "translate-x-0" : "translate-x-full",
+          "w-72 lg:w-80 border-l border-border-default fixed right-0 inset-y-0 z-30 bg-background-secondary transition-transform duration-300 ease-in-out",
+          windowWidth >= 1024
+            ? "lg:relative lg:translate-x-0"
+            : showContext
+              ? "translate-x-0"
+              : "translate-x-full",
         )}
       >
         <ContextPanel
@@ -245,9 +344,9 @@ export function ChatPage({
       </div>
 
       {/* Backdrop for mobile sidebar/context panel */}
-      {(showSidebar || showContext) && (
+      {(showSidebar || showContext) && windowWidth < 1024 && (
         <div
-          className="fixed inset-0 bg-black/20 z-10 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-20 transition-opacity duration-300 ease-in-out"
           onClick={() => {
             setShowSidebar(false);
             setShowContext(false);
