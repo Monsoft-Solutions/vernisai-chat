@@ -152,13 +152,22 @@ export const UsageChart: React.FC<UsageChartProps> = ({ data, title }) => {
       ? data.slice(-7) // Last 7 days
       : data; // Full month
 
-  // Calculate total and average metrics
-  const totalMessages = filteredData.reduce((sum, item) => sum + item.value, 0);
-  const averagePerDay = Math.round(totalMessages / filteredData.length);
-  const maxDay = filteredData.reduce(
-    (max, item) => (item.value > max.value ? item : max),
-    filteredData[0],
-  );
+  // Calculate total and average metrics with proper empty data handling
+  const totalMessages =
+    filteredData.length > 0
+      ? filteredData.reduce((sum, item) => sum + item.value, 0)
+      : 0;
+  const averagePerDay =
+    filteredData.length > 0
+      ? Math.round(totalMessages / filteredData.length)
+      : 0;
+  const maxDay =
+    filteredData.length > 0
+      ? filteredData.reduce(
+          (max, item) => (item.value > max.value ? item : max),
+          filteredData[0],
+        )
+      : { date: new Date().toISOString().split("T")[0], value: 0 };
 
   return (
     <Card className="h-full flex flex-col">

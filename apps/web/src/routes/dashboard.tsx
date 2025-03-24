@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   OrganizationInfoCard,
   ConversationCard,
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const [conversationFilter, setConversationFilter] = useState("all");
   const [agentFilter, setAgentFilter] = useState("all");
+  const navigate = useNavigate();
 
   // Filter conversations based on the selected filter
   const filteredConversations =
@@ -111,9 +112,12 @@ function Dashboard() {
                 lastMessageAt={conversation.lastMessageAt}
                 model={conversation.model}
                 snippet={conversation.snippet}
-                onClick={() =>
-                  console.log(`Navigate to conversation ${conversation.id}`)
-                }
+                onClick={() => {
+                  navigate({
+                    to: "/chat/$id",
+                    params: { id: conversation.id },
+                  });
+                }}
               />
             ))}
             {filteredConversations.length === 0 && (
@@ -170,9 +174,12 @@ function Dashboard() {
                 capabilities={agent.capabilities}
                 avatarUrl={agent.avatarUrl}
                 icon={agent.icon}
-                onStartConversation={() =>
-                  console.log(`Start conversation with agent ${agent.id}`)
-                }
+                onStartConversation={() => {
+                  navigate({
+                    to: "/chat",
+                    search: { agent: agent.id },
+                  });
+                }}
               />
             ))}
             {filteredAgents.length === 0 && (

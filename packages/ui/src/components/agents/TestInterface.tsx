@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
@@ -26,6 +26,12 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
   onClearConversation,
 }) => {
   const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to the latest message when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +100,9 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
               </div>
             </div>
           )}
+
+          {/* Add ref for auto-scrolling */}
+          <div ref={messagesEndRef} />
         </div>
 
         <form onSubmit={handleSubmit} className="border-t p-4 bg-background">
