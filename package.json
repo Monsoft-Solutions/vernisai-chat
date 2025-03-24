@@ -12,6 +12,8 @@
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "@tanstack/react-router-devtools": "^1.114.27",
+    "@tanstack/router-plugin": "^1.114.27",
     "eslint": "^8.57.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
@@ -29,6 +31,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@tanstack/react-router": "^1.114.27",
     "audit": "^0.0.6",
     "drizzle-orm": "^0.41.0"
   },
