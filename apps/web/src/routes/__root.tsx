@@ -24,6 +24,13 @@ export const Route = createRootRoute({
               Dashboard
             </Link>
             <Link
+              to="/agent-builder"
+              activeProps={{ className: "font-bold text-primary-500" }}
+              className="hover:text-primary-500 transition-colors"
+            >
+              Agent Builder
+            </Link>
+            <Link
               to="/chat"
               activeProps={{ className: "font-bold text-primary-500" }}
               className="hover:text-primary-500 transition-colors"

@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from "./routes/__root";
 import { Route as DashboardImport } from "./routes/dashboard";
+import { Route as AgentBuilderImport } from "./routes/agent-builder";
 import { Route as IndexImport } from "./routes/index";
 import { Route as ChatIndexImport } from "./routes/chat/index";
 import { Route as ChatIdImport } from "./routes/chat/$id";
@@ -21,6 +22,12 @@ import { Route as ChatIdImport } from "./routes/chat/$id";
 const DashboardRoute = DashboardImport.update({
   id: "/dashboard",
   path: "/dashboard",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const AgentBuilderRoute = AgentBuilderImport.update({
+  id: "/agent-builder",
+  path: "/agent-builder",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -53,6 +60,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/agent-builder": {
+      id: "/agent-builder";
+      path: "/agent-builder";
+      fullPath: "/agent-builder";
+      preLoaderRoute: typeof AgentBuilderImport;
+      parentRoute: typeof rootRoute;
+    };
     "/dashboard": {
       id: "/dashboard";
       path: "/dashboard";
@@ -81,6 +95,7 @@ declare module "@tanstack/react-router" {
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/chat": typeof ChatIndexRoute;
@@ -88,6 +103,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/chat": typeof ChatIndexRoute;
@@ -96,6 +112,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute;
   "/": typeof IndexRoute;
+  "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/chat/": typeof ChatIndexRoute;
@@ -103,15 +120,22 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/dashboard" | "/chat/$id" | "/chat";
+  fullPaths: "/" | "/agent-builder" | "/dashboard" | "/chat/$id" | "/chat";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/dashboard" | "/chat/$id" | "/chat";
-  id: "__root__" | "/" | "/dashboard" | "/chat/$id" | "/chat/";
+  to: "/" | "/agent-builder" | "/dashboard" | "/chat/$id" | "/chat";
+  id:
+    | "__root__"
+    | "/"
+    | "/agent-builder"
+    | "/dashboard"
+    | "/chat/$id"
+    | "/chat/";
   fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  AgentBuilderRoute: typeof AgentBuilderRoute;
   DashboardRoute: typeof DashboardRoute;
   ChatIdRoute: typeof ChatIdRoute;
   ChatIndexRoute: typeof ChatIndexRoute;
@@ -119,6 +143,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentBuilderRoute: AgentBuilderRoute,
   DashboardRoute: DashboardRoute,
   ChatIdRoute: ChatIdRoute,
   ChatIndexRoute: ChatIndexRoute,
@@ -135,6 +160,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/agent-builder",
         "/dashboard",
         "/chat/$id",
         "/chat/"
@@ -142,6 +168,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/agent-builder": {
+      "filePath": "agent-builder.tsx"
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
