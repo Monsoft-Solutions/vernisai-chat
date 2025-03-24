@@ -11,11 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root";
+import { Route as DashboardImport } from "./routes/dashboard";
 import { Route as IndexImport } from "./routes/index";
 import { Route as ChatIndexImport } from "./routes/chat/index";
 import { Route as ChatIdImport } from "./routes/chat/$id";
 
 // Create/Update Routes
+
+const DashboardRoute = DashboardImport.update({
+  id: "/dashboard",
+  path: "/dashboard",
+  getParentRoute: () => rootRoute,
+} as any);
 
 const IndexRoute = IndexImport.update({
   id: "/",
@@ -46,6 +53,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport;
       parentRoute: typeof rootRoute;
     };
+    "/dashboard": {
+      id: "/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardImport;
+      parentRoute: typeof rootRoute;
+    };
     "/chat/$id": {
       id: "/chat/$id";
       path: "/chat/$id";
@@ -67,12 +81,14 @@ declare module "@tanstack/react-router" {
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/chat": typeof ChatIndexRoute;
 }
 
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/chat": typeof ChatIndexRoute;
 }
@@ -80,27 +96,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute;
   "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/chat/": typeof ChatIndexRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/chat/$id" | "/chat";
+  fullPaths: "/" | "/dashboard" | "/chat/$id" | "/chat";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/chat/$id" | "/chat";
-  id: "__root__" | "/" | "/chat/$id" | "/chat/";
+  to: "/" | "/dashboard" | "/chat/$id" | "/chat";
+  id: "__root__" | "/" | "/dashboard" | "/chat/$id" | "/chat/";
   fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  DashboardRoute: typeof DashboardRoute;
   ChatIdRoute: typeof ChatIdRoute;
   ChatIndexRoute: typeof ChatIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   ChatIdRoute: ChatIdRoute,
   ChatIndexRoute: ChatIndexRoute,
 };
@@ -116,12 +135,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/dashboard",
         "/chat/$id",
         "/chat/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/dashboard": {
+      "filePath": "dashboard.tsx"
     },
     "/chat/$id": {
       "filePath": "chat/$id.tsx"
