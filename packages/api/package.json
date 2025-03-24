@@ -14,7 +14,7 @@
     "build": "tsup",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "lint": "eslint src/",
-    "dev": "ts-node --transpile-only --esm src/server.ts",
+    "dev": "ts-node --transpile-only src/server.ts",
     "dev:server": "cross-env API_SERVER_MODE=server node dist/server.js",
     "start:server": "cross-env API_SERVER_MODE=server node dist/server.js",
     "generate:openapi": "tsx src/scripts/generate-openapi.ts"
