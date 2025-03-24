@@ -28,17 +28,27 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
   onRemoveTool,
   onConfigureTool,
 }) => {
+  const availableToolsFiltered = availableTools.filter(
+    (tool) => !selectedTools.some((selected) => selected.id === tool.id),
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Available Tools</h3>
-        <div className="space-y-2">
-          {availableTools
-            .filter(
-              (tool) =>
-                !selectedTools.some((selected) => selected.id === tool.id),
-            )
-            .map((tool) => (
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-gray-700">Available Tools</h3>
+          <Badge variant="outline" className="text-xs">
+            {availableToolsFiltered.length} available
+          </Badge>
+        </div>
+
+        {availableToolsFiltered.length === 0 ? (
+          <div className="border border-dashed rounded-md p-4 text-center text-muted-foreground text-sm">
+            All available tools have been added
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {availableToolsFiltered.map((tool) => (
               <ToolCard
                 key={tool.id}
                 tool={tool}
@@ -46,18 +56,29 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
                 actionType="add"
               />
             ))}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Selected Tools</h3>
-        <div className="space-y-2">
-          {selectedTools.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
-              No tools selected. Add tools from the available list.
-            </p>
-          ) : (
-            selectedTools.map((tool) => (
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-gray-700">Selected Tools</h3>
+          <Badge variant="secondary" className="text-xs">
+            {selectedTools.length} selected
+          </Badge>
+        </div>
+
+        {selectedTools.length === 0 ? (
+          <div className="border border-dashed rounded-md p-8 text-center text-muted-foreground text-sm flex flex-col items-center justify-center">
+            <div className="mb-2 opacity-50">No tools selected</div>
+            <div className="text-xs max-w-md">
+              Add tools from the available list to enhance your agent's
+              capabilities
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {selectedTools.map((tool) => (
               <ToolCard
                 key={tool.id}
                 tool={tool}
@@ -69,9 +90,9 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
                     : undefined
                 }
               />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -90,26 +111,48 @@ const ToolCard: React.FC<ToolCardProps> = ({
   actionType,
   onConfigure,
 }) => {
+  // Map icon strings to emoji representations if no icon component is available
+  const iconMap: Record<string, string> = {
+    search: "🔍",
+    "file-text": "📄",
+    calculator: "🧮",
+    code: "💻",
+    cloud: "☁️",
+    "bar-chart": "📊",
+  };
+
+  const icon = tool.icon ? iconMap[tool.icon] || "🔧" : "🔧";
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card
+      className={`hover:shadow-md transition-shadow ${
+        actionType === "remove" ? "border-primary/20 bg-primary/5" : ""
+      }`}
+    >
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
-          <div>
-            <h4 className="font-medium">{tool.name}</h4>
-            <p className="text-sm text-muted-foreground mt-1">
-              {tool.description}
-            </p>
-            {tool.requiresConfig && (
-              <Badge variant="outline" className="mt-2">
-                Requires Configuration
-              </Badge>
-            )}
+          <div className="flex items-start gap-3">
+            <div className="text-xl mt-1">{icon}</div>
+            <div>
+              <h4 className="font-medium flex items-center gap-2">
+                {tool.name}
+              </h4>
+              <p className="text-sm text-muted-foreground mt-1">
+                {tool.description}
+              </p>
+              {tool.requiresConfig && (
+                <Badge variant="outline" className="mt-2 text-xs">
+                  Requires Configuration
+                </Badge>
+              )}
+            </div>
           </div>
           <div className="flex flex-col items-end gap-2">
             <Button
               variant={actionType === "add" ? "default" : "destructive"}
               size="sm"
               onClick={onClick}
+              className="min-w-20"
             >
               {actionType === "add" ? "Add" : "Remove"}
             </Button>
@@ -122,6 +165,7 @@ const ToolCard: React.FC<ToolCardProps> = ({
                   e.stopPropagation();
                   onConfigure();
                 }}
+                className="min-w-20"
               >
                 Configure
               </Button>

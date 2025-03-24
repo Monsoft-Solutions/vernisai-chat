@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 type InfoCardProps = {
   children: React.ReactNode;
-  title: string;
+  title: React.ReactNode;
 };
 
 export const InfoCard: React.FC<InfoCardProps> = ({ children, title }) => {
