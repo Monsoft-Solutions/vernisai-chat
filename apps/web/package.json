@@ -10,13 +10,13 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
-    "@repo/ui": "^0.0.0",
+    "@vernisai/ui": "^0.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@repo/eslint-config": "^0.0.0",
-    "@repo/typescript-config": "^0.0.0",
+    "@vernisai/eslint-config": "^0.0.0",
+    "@vernisai/typescript-config": "^0.0.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",

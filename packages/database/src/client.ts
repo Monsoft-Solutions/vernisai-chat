@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
 import * as schema from "./tables";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
