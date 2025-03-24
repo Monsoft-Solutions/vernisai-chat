@@ -15,7 +15,10 @@ import { Route as DashboardImport } from "./routes/dashboard";
 import { Route as AgentBuilderImport } from "./routes/agent-builder";
 import { Route as IndexImport } from "./routes/index";
 import { Route as ChatIndexImport } from "./routes/chat/index";
+import { Route as AgentIndexImport } from "./routes/agent/index";
 import { Route as ChatIdImport } from "./routes/chat/$id";
+import { Route as AgentCreateImport } from "./routes/agent/create";
+import { Route as AgentIdImport } from "./routes/agent/$id";
 
 // Create/Update Routes
 
@@ -43,9 +46,27 @@ const ChatIndexRoute = ChatIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any);
 
+const AgentIndexRoute = AgentIndexImport.update({
+  id: "/agent/",
+  path: "/agent/",
+  getParentRoute: () => rootRoute,
+} as any);
+
 const ChatIdRoute = ChatIdImport.update({
   id: "/chat/$id",
   path: "/chat/$id",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const AgentCreateRoute = AgentCreateImport.update({
+  id: "/agent/create",
+  path: "/agent/create",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const AgentIdRoute = AgentIdImport.update({
+  id: "/agent/$id",
+  path: "/agent/$id",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -74,11 +95,32 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardImport;
       parentRoute: typeof rootRoute;
     };
+    "/agent/$id": {
+      id: "/agent/$id";
+      path: "/agent/$id";
+      fullPath: "/agent/$id";
+      preLoaderRoute: typeof AgentIdImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/agent/create": {
+      id: "/agent/create";
+      path: "/agent/create";
+      fullPath: "/agent/create";
+      preLoaderRoute: typeof AgentCreateImport;
+      parentRoute: typeof rootRoute;
+    };
     "/chat/$id": {
       id: "/chat/$id";
       path: "/chat/$id";
       fullPath: "/chat/$id";
       preLoaderRoute: typeof ChatIdImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/agent/": {
+      id: "/agent/";
+      path: "/agent";
+      fullPath: "/agent";
+      preLoaderRoute: typeof AgentIndexImport;
       parentRoute: typeof rootRoute;
     };
     "/chat/": {
@@ -97,7 +139,10 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
   "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
+  "/agent/$id": typeof AgentIdRoute;
+  "/agent/create": typeof AgentCreateRoute;
   "/chat/$id": typeof ChatIdRoute;
+  "/agent": typeof AgentIndexRoute;
   "/chat": typeof ChatIndexRoute;
 }
 
@@ -105,7 +150,10 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
+  "/agent/$id": typeof AgentIdRoute;
+  "/agent/create": typeof AgentCreateRoute;
   "/chat/$id": typeof ChatIdRoute;
+  "/agent": typeof AgentIndexRoute;
   "/chat": typeof ChatIndexRoute;
 }
 
@@ -114,21 +162,43 @@ export interface FileRoutesById {
   "/": typeof IndexRoute;
   "/agent-builder": typeof AgentBuilderRoute;
   "/dashboard": typeof DashboardRoute;
+  "/agent/$id": typeof AgentIdRoute;
+  "/agent/create": typeof AgentCreateRoute;
   "/chat/$id": typeof ChatIdRoute;
+  "/agent/": typeof AgentIndexRoute;
   "/chat/": typeof ChatIndexRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/agent-builder" | "/dashboard" | "/chat/$id" | "/chat";
+  fullPaths:
+    | "/"
+    | "/agent-builder"
+    | "/dashboard"
+    | "/agent/$id"
+    | "/agent/create"
+    | "/chat/$id"
+    | "/agent"
+    | "/chat";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/agent-builder" | "/dashboard" | "/chat/$id" | "/chat";
+  to:
+    | "/"
+    | "/agent-builder"
+    | "/dashboard"
+    | "/agent/$id"
+    | "/agent/create"
+    | "/chat/$id"
+    | "/agent"
+    | "/chat";
   id:
     | "__root__"
     | "/"
     | "/agent-builder"
     | "/dashboard"
+    | "/agent/$id"
+    | "/agent/create"
     | "/chat/$id"
+    | "/agent/"
     | "/chat/";
   fileRoutesById: FileRoutesById;
 }
@@ -137,7 +207,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   AgentBuilderRoute: typeof AgentBuilderRoute;
   DashboardRoute: typeof DashboardRoute;
+  AgentIdRoute: typeof AgentIdRoute;
+  AgentCreateRoute: typeof AgentCreateRoute;
   ChatIdRoute: typeof ChatIdRoute;
+  AgentIndexRoute: typeof AgentIndexRoute;
   ChatIndexRoute: typeof ChatIndexRoute;
 }
 
@@ -145,7 +218,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentBuilderRoute: AgentBuilderRoute,
   DashboardRoute: DashboardRoute,
+  AgentIdRoute: AgentIdRoute,
+  AgentCreateRoute: AgentCreateRoute,
   ChatIdRoute: ChatIdRoute,
+  AgentIndexRoute: AgentIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
 };
 
@@ -162,7 +238,10 @@ export const routeTree = rootRoute
         "/",
         "/agent-builder",
         "/dashboard",
+        "/agent/$id",
+        "/agent/create",
         "/chat/$id",
+        "/agent/",
         "/chat/"
       ]
     },
@@ -175,8 +254,17 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard.tsx"
     },
+    "/agent/$id": {
+      "filePath": "agent/$id.tsx"
+    },
+    "/agent/create": {
+      "filePath": "agent/create.tsx"
+    },
     "/chat/$id": {
       "filePath": "chat/$id.tsx"
+    },
+    "/agent/": {
+      "filePath": "agent/index.tsx"
     },
     "/chat/": {
       "filePath": "chat/index.tsx"

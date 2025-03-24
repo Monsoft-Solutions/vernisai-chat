@@ -1,15 +1,22 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AgentBuilderForm } from "../components/AgentBuilderForm";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
+// Define search params type to include id
+type SearchParams = {
+  id?: string;
+};
 
 export const Route = createFileRoute("/agent-builder")({
-  component: AgentBuilder,
-});
+  beforeLoad: ({ search }) => {
+    const typedSearch = search as SearchParams;
 
-function AgentBuilder() {
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Create New Agent</h1>
-      <AgentBuilderForm />
-    </div>
-  );
-}
+    // If there's an id in the search params, redirect to the detail page
+    if (typedSearch.id) {
+      throw redirect({
+        to: "/agent/$id",
+        params: { id: typedSearch.id },
+      });
+    }
+    // Otherwise redirect to the create page
+    throw redirect({ to: "/agent/create" });
+  },
+});

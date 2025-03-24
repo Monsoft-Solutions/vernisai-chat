@@ -6,6 +6,9 @@ export type OrganizationInfo = {
   totalUsers: number;
   subscriptionPlan: "Free" | "Pro" | "Enterprise";
   usagePercent: number;
+  createdAt: string | Date;
+  renewalDate: string | Date;
+  usageLimit: number;
 };
 
 export type Conversation = {
@@ -27,6 +30,9 @@ export const mockOrganizationInfo: OrganizationInfo = {
   totalUsers: 15,
   subscriptionPlan: "Pro",
   usagePercent: 68,
+  createdAt: new Date("2025-01-15"),
+  renewalDate: new Date("2026-02-15"),
+  usageLimit: 10000,
 };
 
 export const mockRecentConversations: Conversation[] = [

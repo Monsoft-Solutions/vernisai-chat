@@ -22,15 +22,22 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const [conversationFilter, setConversationFilter] = useState("all");
   const [agentFilter, setAgentFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // Filter conversations based on the selected filter
-  const filteredConversations =
-    conversationFilter === "all"
-      ? mockRecentConversations
-      : mockRecentConversations.filter((conv) =>
-          conv.model.toLowerCase().includes(conversationFilter),
-        );
+  // Filter conversations based on the selected filter and search term
+  const filteredConversations = mockRecentConversations
+    .filter(
+      (conv) =>
+        searchTerm === "" ||
+        conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        conv.snippet.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .filter(
+      (conv) =>
+        conversationFilter === "all" ||
+        conv.model.toLowerCase().includes(conversationFilter),
+    );
 
   // Enhanced agent filtering with case-insensitive matching
   const filteredAgents =
@@ -63,7 +70,7 @@ function Dashboard() {
             </button>
             <button
               className="flex items-center gap-2 bg-white border border-border-default px-4 py-2 rounded-md hover:bg-background-secondary transition-colors"
-              onClick={() => navigate({ to: "/agent-builder" })}
+              onClick={() => navigate({ to: "/agent/create" })}
             >
               <PlusIcon size={16} /> New Agent
             </button>
@@ -96,6 +103,9 @@ function Dashboard() {
                   type="text"
                   placeholder="Search conversations..."
                   className="pl-8 pr-4 py-1.5 text-sm rounded-md border border-border-default w-full focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label="Search conversations"
                 />
               </div>
               <select
@@ -134,7 +144,11 @@ function Dashboard() {
           </div>
           {mockRecentConversations.length > 3 && (
             <div className="mt-4 text-center">
-              <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mx-auto">
+              <button
+                className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mx-auto"
+                onClick={() => navigate({ to: "/chat" })}
+                aria-label="View all conversations"
+              >
                 View all conversations <ArrowRightIcon size={14} />
               </button>
             </div>
@@ -186,6 +200,12 @@ function Dashboard() {
                     search: { agent: agent.id },
                   });
                 }}
+                onViewDetails={() => {
+                  navigate({
+                    to: "/agent/$id",
+                    params: { id: agent.id },
+                  });
+                }}
               />
             ))}
             {filteredAgents.length === 0 && (
@@ -196,7 +216,11 @@ function Dashboard() {
           </div>
           {mockAgents.length > 4 && (
             <div className="mt-4 text-center">
-              <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mx-auto">
+              <button
+                className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mx-auto"
+                onClick={() => navigate({ to: "/agent" })}
+                aria-label="View all agents"
+              >
                 View all agents <ArrowRightIcon size={14} />
               </button>
             </div>

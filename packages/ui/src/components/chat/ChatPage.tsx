@@ -17,9 +17,9 @@ import {
 import type { ChatSession, Tool } from "./types";
 
 /**
- * Props for the ChatHeader component
+ * Props for the PageHeader component
  */
-type ChatHeaderProps = {
+type PageHeaderProps = {
   /**
    * Title of the conversation
    */
@@ -51,9 +51,9 @@ type ChatHeaderProps = {
 };
 
 /**
- * ChatHeader component for navigation and context
+ * PageHeader component for navigation and context
  */
-function ChatHeader({
+function PageHeader({
   title = "New Conversation",
   agentName,
   onToggleSidebar,
@@ -61,7 +61,7 @@ function ChatHeader({
   sidebarVisible,
   contextVisible,
   className,
-}: ChatHeaderProps) {
+}: PageHeaderProps) {
   return (
     <header
       className={cn(
@@ -299,7 +299,7 @@ export function ChatPage({
         )}
       >
         {/* Chat header */}
-        <ChatHeader
+        <PageHeader
           title={currentSession?.name || "New Conversation"}
           agentName={currentSession?.agentName}
           onToggleSidebar={toggleSidebar}

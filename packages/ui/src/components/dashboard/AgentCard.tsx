@@ -13,6 +13,7 @@ type AgentCardProps = {
   avatarUrl?: string;
   icon?: LucideIcon;
   onStartConversation?: () => void;
+  onViewDetails?: () => void;
 };
 
 export const AgentCard: React.FC<AgentCardProps> = ({
@@ -22,6 +23,7 @@ export const AgentCard: React.FC<AgentCardProps> = ({
   avatarUrl,
   icon: Icon,
   onStartConversation,
+  onViewDetails,
 }) => {
   const [imageError, setImageError] = useState(false);
 
@@ -111,7 +113,10 @@ export const AgentCard: React.FC<AgentCardProps> = ({
         <Button
           variant="ghost"
           size="sm"
+          onClick={onViewDetails}
           className="p-0 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="View agent details"
+          title="View agent details"
         >
           <ChevronRightIcon className="h-4 w-4" />
         </Button>

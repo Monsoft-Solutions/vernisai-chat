@@ -21,6 +21,9 @@ type OrganizationInfoCardProps = {
   totalUsers: number;
   subscriptionPlan: string;
   usagePercent: number;
+  createdAt?: string | Date;
+  renewalDate?: string | Date;
+  usageLimit?: number;
 };
 
 export const OrganizationInfoCard: React.FC<OrganizationInfoCardProps> = ({
@@ -29,6 +32,9 @@ export const OrganizationInfoCard: React.FC<OrganizationInfoCardProps> = ({
   totalUsers,
   subscriptionPlan,
   usagePercent,
+  createdAt = new Date("2025-01-15"), // Default fallback
+  renewalDate = new Date("2026-02-15"), // Default fallback
+  usageLimit = 10000, // Default fallback
 }) => {
   // Determine the plan color and icon
   const getPlanDetails = () => {
@@ -75,7 +81,7 @@ export const OrganizationInfoCard: React.FC<OrganizationInfoCardProps> = ({
             <div>
               <p className="text-base font-semibold">{name}</p>
               <p className="text-xs text-text-tertiary">
-                Created on: Jan 15, 2025
+                Created on: {new Date(createdAt).toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -128,7 +134,7 @@ export const OrganizationInfoCard: React.FC<OrganizationInfoCardProps> = ({
                   {subscriptionPlan} Plan
                 </span>
                 <span className="ml-2 text-xs text-text-tertiary">
-                  Auto-renews: Feb 15, 2026
+                  Auto-renews: {new Date(renewalDate).toLocaleDateString()}
                 </span>
               </div>
               <div className="text-xs text-text-tertiary mt-1">
@@ -169,7 +175,9 @@ export const OrganizationInfoCard: React.FC<OrganizationInfoCardProps> = ({
 
           <div className="flex justify-between mt-2 text-xs text-text-tertiary">
             <span>0</span>
-            <span>Usage Limit: 10,000 messages/month</span>
+            <span>
+              Usage Limit: {usageLimit.toLocaleString()} messages/month
+            </span>
           </div>
         </div>
       </CardContent>
