@@ -7,14 +7,22 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
-    "prettier": "^3.2.5",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
     "turbo": "^2.4.4"
   },
-  "name": "with-vite-react",
+  "name": "monsoft/vernisai-chat",
+  "version": "0.0.1",
+  "description": "Vernisai Chat",
+  "author": "Monsoft Solutions <https://monsoftsolutions.com>",
+  "license": "MIT",
   "packageManager": "npm@10.9.2",
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "audit": "^0.0.6",
+    "drizzle-orm": "^0.41.0"
+  }
 }

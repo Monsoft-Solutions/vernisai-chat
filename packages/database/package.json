@@ -1,0 +1,36 @@
+{
+  "name": "@vernisai/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "lint": "eslint src/",
+    "dev": "tsup --watch",
+    "generate": "drizzle-kit generate:pg",
+    "migrate": "tsx src/migrate.ts",
+    "studio": "drizzle-kit studio"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.25",
+    "drizzle-kit": "^0.20.13",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.30.0",
+    "pg": "^8.14.1",
+    "postgres": "^3.4.5"
+  }
+}
