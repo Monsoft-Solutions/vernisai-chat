@@ -4,10 +4,12 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "validate-docs": "npx markdownlint-cli \"docs/**/*.md\" --config .markdownlint.json"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
+    "markdownlint-cli": "^0.39.0",
     "prettier": "^3.5.3",
     "turbo": "^2.4.4"
   },
