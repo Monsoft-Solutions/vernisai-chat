@@ -50,6 +50,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    needs: validate
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,5 +73,60 @@ jobs:
             turbo-${{ github.job }}-${{ github.ref_name }}-
             turbo-${{ github.job }}-
 
-      - name: Run tests
-        run: npm run test
+      - name: Run unit and integration tests
+        run: npm run test -- --cache-dir=.turbo/cache
+
+      - name: Run test coverage
+        run: npm run test:coverage -- --cache-dir=.turbo/cache
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Cache Turbo build outputs
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-e2e-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-e2e-${{ github.ref_name }}-
+            turbo-e2e-
+
+      - name: Build project
+        run: npm run build -- --cache-dir=.turbo/cache
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload E2E test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
