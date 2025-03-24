@@ -2,256 +2,221 @@
 
 ## Overview
 
-The Chat Interface is the core interaction point for users, featuring a clean and intuitive design for conversing with AI models. It provides a seamless conversational experience with support for various message types, tool usage, and contextual information.
+The Chat Interface serves as the core interaction point for users with the AI agents. It provides a seamless experience for managing conversations, accessing agents, and viewing context.
 
-## Screen Components
+## Route Structure
 
-```ascii
-┌─────────────────────────────────────────────────────────────────────┐
-│ [Logo]  Dashboard  Conversations  Agents  Settings  [User Menu]     │
-├────────────────────┬────────────────────────────────┬───────────────┤
-│                    │                                │               │
-│  Conversations     │ Conversation Title             │  Context      │
-│  ┌──────────────┐  │ ┌────────────────────────────┐ │  Panel       │
-│  │ Conv 1       │  │ │                            │ │               │
-│  └──────────────┘  │ │  [Assistant Message]       │ │  [Agent Info] │
-│  ┌──────────────┐  │ │                            │ │               │
-│  │ Conv 2       │  │ └────────────────────────────┘ │  [Tools Used] │
-│  └──────────────┘  │ ┌────────────────────────────┐ │               │
-│  ┌──────────────┐  │ │                            │ │  [References  │
-│  │ Conv 3       │  │ │  [User Message]            │ │   & Sources]  │
-│  └──────────────┘  │ │                            │ │               │
-│                    │ └────────────────────────────┘ │  [Workflow    │
-│  + New Chat        │ ┌────────────────────────────┐ │   Steps]      │
-│                    │ │                            │ │               │
-│  Agents            │ │  [Assistant Message        │ │               │
-│  ┌──────────────┐  │ │   with Tool Usage]         │ │               │
-│  │ Agent 1      │  │ │                            │ │               │
-│  └──────────────┘  │ └────────────────────────────┘ │               │
-│  ┌──────────────┐  │                                │               │
-│  │ Agent 2      │  │                                │               │
-│  └──────────────┘  │                                │               │
-│                    │                                │               │
-│                    │ ┌────────────────────────────┐ │               │
-│                    │ │ [Input Area with           │ │               │
-│                    │ │  Formatting Options]       │ │               │
-│                    │ │                            │ │               │
-│                    │ └────────────────────────────┘ │               │
-└────────────────────┴────────────────────────────────┴───────────────┘
+The chat interface is implemented using TanStack Router with the following route structure:
+
+```bash
+src/routes/
+├── __root.tsx           # Root layout with navigation
+├── chat/
+│   ├── _layout.tsx      # Chat layout with sidebar
+│   ├── index.tsx        # Chat home/list view
+│   └── $id.tsx          # Dynamic chat session route
 ```
 
-## Component Breakdown
+## Layout Structure
 
-### 1. Layout Structure
+The chat interface consists of several key areas:
 
-- **Components**:
-  - `ChatLayout`: Main layout with three-column design (sidebar, chat, context)
-  - `ChatSidebar`: Left sidebar with conversation list and agent list
-  - `ChatPanel`: Main center panel for conversation
-  - `ContextPanel`: Right sidebar for contextual information
+1. **Chat Layout** (`packages/ui/src/components/chat/ChatLayout.tsx`)
 
-### 2. Conversation List
+   - Main container with responsive grid layout
+   - Manages sidebar visibility state
+   - Handles route transitions
 
-- **Purpose**: Navigate between different conversations
-- **Components**:
-  - `ConversationList`: Scrollable list of conversation items
-  - `ConversationItem`: Individual conversation with selection state
-  - `NewChatButton`: Button to start a new conversation
+2. **Conversation List** (`packages/ui/src/components/chat/ConversationList.tsx`)
 
-### 3. Agent List
+   - List of chat sessions
+   - New chat button
+   - Search and filter functionality
 
-- **Purpose**: Quick access to available agents
-- **Components**:
-  - `AgentList`: Scrollable list of agent items
-  - `AgentItem`: Individual agent with selection state
+3. **Agent List** (`packages/ui/src/components/chat/AgentList.tsx`)
 
-### 4. Chat Messages
+   - Available AI agents
+   - Agent selection interface
+   - Agent status indicators
 
-- **Purpose**: Display conversation between user and AI
-- **Components**:
-  - `MessageList`: Container for all messages with scroll management
-  - `MessageItem`: Base component for all message types
-  - `UserMessage`: User message styling and actions
-  - `AssistantMessage`: AI assistant message with support for rich content
-  - `ToolMessage`: Special message showing tool usage
-  - `SystemMessage`: System-generated messages/notifications
-  - `MessageSkeleton`: Loading state for messages being generated
-  - `MessageActions`: Actions available for each message (copy, edit, etc.)
+4. **Chat Messages** (`packages/ui/src/components/chat/ChatMessages.tsx`)
 
-### 5. Input Area
+   - Message thread display
+   - Message grouping
+   - Code block formatting
+   - Syntax highlighting
 
-- **Purpose**: Allow users to compose and send messages
-- **Components**:
-  - `ChatInput`: Rich text input with auto-resize
-  - `AttachmentButton`: Button to add files or images
-  - `FormattingToolbar`: Formatting options for rich text
-  - `SendButton`: Button to send messages
-  - `StopGenerationButton`: Button to stop message generation
+5. **Input Area** (`packages/ui/src/components/chat/ChatInput.tsx`)
 
-### 6. Context Panel
+   - Message composition
+   - File attachments
+   - Send button
+   - Typing indicators
 
-- **Purpose**: Display contextual information about the conversation
-- **Components**:
-  - `AgentInfoCard`: Information about the current agent
-  - `ToolUsageList`: List of tools used in the conversation
-  - `ReferencesPanel`: Sources and references used
-  - `WorkflowSteps`: Workflow steps for multi-step processes
+6. **Context Panel** (`packages/ui/src/components/chat/ContextPanel.tsx`)
+   - Current agent info
+   - Conversation settings
+   - Knowledge base access
 
-## Implementation Roadmap
+## Component Implementation
+
+### Shared Components
+
+All reusable chat components are implemented in `packages/ui/src/components/chat/`:
+
+```typescript
+// packages/ui/src/components/chat/types.ts
+export type Message = {
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+  timestamp: Date;
+  attachments?: Attachment[];
+};
+
+export type ChatSession = {
+  id: string;
+  title: string;
+  lastMessage?: Message;
+  agentId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// Additional type definitions...
+```
+
+### Route Components
+
+Route components in `apps/web/src/routes/chat/` handle data loading and state management:
+
+```typescript
+// apps/web/src/routes/chat/$id.tsx
+import { createFileRoute } from '@tanstack/react-router';
+import { ChatLayout } from '@vernisai/ui';
+
+export const Route = createFileRoute('/chat/$id')({
+  component: ChatSessionPage,
+  loader: ({ params }) => fetchChatSession(params.id),
+});
+
+function ChatSessionPage() {
+  const { id } = Route.useParams();
+  const session = Route.useLoaderData();
+
+  return (
+    <ChatLayout>
+      {/* Chat components */}
+    </ChatLayout>
+  );
+}
+```
+
+## Implementation Phases
 
 ### Phase 1: Core Chat Structure
 
-1. Implement the three-column layout structure
-2. Create basic message components
-3. Implement input area with send functionality
+1. Set up route structure with TanStack Router
+2. Implement shared UI components in packages/ui
+3. Create basic chat layout with responsive design
+4. Add navigation between chat sessions
 
-### Phase 2: Message Types & Formatting
+### Phase 2: Message Types and Formatting
 
-1. Develop rich text rendering for messages
-2. Implement code block support with syntax highlighting
-3. Create tool usage visualization components
-4. Add support for images and attachments
+1. Implement message display components
+2. Add code block formatting
+3. Support file attachments
+4. Add message timestamps and grouping
 
-### Phase 3: Interactivity & Navigation
+### Phase 3: Interactivity and Navigation
 
-1. Implement conversation navigation and history
-2. Create agent selection functionality
-3. Add message actions (copy, edit, regenerate)
-4. Implement real-time typing indicators
+1. Implement chat input with validation
+2. Add file upload functionality
+3. Create agent selection interface
+4. Implement context panel
 
-### Phase 4: Context Panel & Advanced Features
+### Phase 4: Advanced Features
 
-1. Develop context panel components
-2. Implement tool usage tracking and display
-3. Create reference linking and citation components
-4. Add workflow step visualization
+1. Add real-time updates
+2. Implement search and filtering
+3. Add keyboard shortcuts
+4. Create loading states and error handling
 
-## UI Component Implementation Details
+## Component Details
 
-### ChatLayout Component
+### ChatLayout
 
-```tsx
-// To be implemented in packages/ui/components/chat/ChatLayout.tsx
-import { Resizable } from "@vernisai/ui";
-
-type ChatLayoutProps = {
-  sidebarContent: React.ReactNode;
-  mainContent: React.ReactNode;
-  contextContent?: React.ReactNode;
-  showContextPanel?: boolean;
+```typescript
+// packages/ui/src/components/chat/ChatLayout.tsx
+export type ChatLayoutProps = {
+  children: React.ReactNode;
+  sidebar?: React.ReactNode;
+  contextPanel?: React.ReactNode;
 };
 
-// Implementation details
+export const ChatLayout = ({
+  children,
+  sidebar,
+  contextPanel,
+}: ChatLayoutProps) => {
+  // Implementation
+};
 ```
 
-### MessageItem Component
+### MessageItem
 
-```tsx
-// To be implemented in packages/ui/components/chat/MessageItem.tsx
-import { Avatar, Card, MessageActions } from "@vernisai/ui";
-
-type MessageItemProps = {
-  id: string;
-  content: React.ReactNode;
-  sender: "user" | "assistant" | "system";
-  timestamp: Date;
-  status?: "sending" | "sent" | "error";
-  toolUsage?: {
-    toolName: string;
-    toolInput: unknown;
-    toolOutput: unknown;
-  }[];
-  actions?: string[];
-  onActionClick?: (action: string) => void;
+```typescript
+// packages/ui/src/components/chat/MessageItem.tsx
+export type MessageItemProps = {
+  message: Message;
+  isLastInGroup?: boolean;
 };
 
-// Implementation details
+export const MessageItem = ({ message, isLastInGroup }: MessageItemProps) => {
+  // Implementation
+};
 ```
 
-### ChatInput Component
+### ChatInput
 
-```tsx
-// To be implemented in packages/ui/components/chat/ChatInput.tsx
-import { Button, IconButton, Tooltip } from "@vernisai/ui";
-
-type ChatInputProps = {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  placeholder?: string;
+```typescript
+// packages/ui/src/components/chat/ChatInput.tsx
+export type ChatInputProps = {
+  onSend: (content: string, attachments?: File[]) => void;
   disabled?: boolean;
-  isGenerating?: boolean;
-  onStopGeneration?: () => void;
-  supportedFormats?: ("bold" | "italic" | "code" | "link")[];
 };
 
-// Implementation details
-```
-
-### AgentInfoCard Component
-
-```tsx
-// To be implemented in packages/ui/components/chat/AgentInfoCard.tsx
-import { Card, Avatar, Badge } from "@vernisai/ui";
-
-type AgentInfoCardProps = {
-  name: string;
-  description: string;
-  capabilities: string[];
-  modelName: string;
-  avatarUrl?: string;
+export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
+  // Implementation
 };
-
-// Implementation details
 ```
 
-## Message Types Support
+## Responsive Design
 
-The chat interface should support these message content types:
-
-1. **Text**: Regular text with support for markdown formatting
-2. **Code Blocks**: Syntax highlighted code with copy functionality
-3. **Images**: Inline images with optional captions
-4. **Tool Usage**: Visual representation of tool calls and results
-5. **Tables**: Data displayed in tabular format
-6. **Lists**: Ordered and unordered lists
-7. **Links**: Clickable links with previews for certain URLs
-8. **Citations**: References to sources with numbers and tooltips
-
-## Responsive Considerations
+The chat interface adapts to different screen sizes:
 
 - **Desktop**: Full three-column layout
-- **Tablet**: Two columns with collapsible context panel
-- **Mobile**: Single column with:
-  - Slide-out conversation list
-  - Bottom sheet for context panel
-  - Simplified input area
+- **Tablet**: Two columns with collapsible panels
+- **Mobile**: Single column with modal panels
+
+## Accessibility
+
+- ARIA roles for chat components
+- Keyboard navigation support
+- Screen reader announcements
+- Focus management
 
 ## Real-time Features
 
-- **Typing Indicators**: Show when AI is generating a response
-- **Stream Responses**: Display AI responses as they're generated
-- **Message Status**: Visual indicators for message delivery status
-- **Presence Indicators**: Show when other users are viewing the conversation
+- WebSocket connection for messages
+- Typing indicators
+- Online status updates
+- Message delivery status
 
-## Accessibility Requirements
+## Testing Strategy
 
-- **Keyboard Navigation**: Tab order for all interactive elements
-- **Screen Reader Support**: ARIA roles for dynamic content
-- **Focus Management**: Proper focus handling for new messages
-- **High Contrast Mode**: Support for high contrast viewing
-
-## Performance Optimization
-
-- **Virtualized Lists**: For handling large conversation histories
-- **Lazy Loading**: For images and embedded content
-- **Debounced Input**: For handling rapid typing
-- **Optimistic Updates**: For immediate UI feedback
-
-## Next Steps
-
-1. Create UI component skeletons in the packages/ui directory
-2. Implement message rendering with markdown support
-3. Set up the three-column layout structure
-4. Create the chat input component with basic functionality
-5. Develop the conversation navigation system
+1. Component unit tests
+2. Route integration tests
+3. Real-time functionality tests
+4. Responsive design tests
+5. Accessibility tests

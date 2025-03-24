@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cn } from "../../lib/utils";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import type { MessageSender, MessageStatus, ToolUsage } from "./types";
 
 /**
@@ -32,18 +34,26 @@ export function MessageActions({
   return (
     <div
       className={cn(
-        "flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity",
+        "flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200",
         className,
       )}
     >
       {actions.map((action) => (
-        <button
+        <Button
           key={action}
           onClick={() => onActionClick?.(action)}
-          className="text-xs text-text-tertiary hover:text-text-secondary"
+          className="h-7 px-2 text-xs"
+          variant="ghost"
+          size="sm"
         >
-          {action.charAt(0).toUpperCase() + action.slice(1)}
-        </button>
+          {action === "copy"
+            ? "Copy"
+            : action === "edit"
+              ? "Edit"
+              : action === "regenerate"
+                ? "Regenerate"
+                : action.charAt(0).toUpperCase() + action.slice(1)}
+        </Button>
       ))}
     </div>
   );
@@ -67,28 +77,54 @@ export type ToolUsageItemProps = {
  * ToolUsageItem component for displaying tool usage information
  */
 export function ToolUsageItem({ toolUsage, className }: ToolUsageItemProps) {
+  const [expanded, setExpanded] = React.useState(false);
+
   return (
     <div
       className={cn(
-        "mt-2 rounded-md border border-border-default bg-background-secondary p-2",
+        "mt-2 rounded-md border border-border-default bg-background-secondary p-3",
         className,
       )}
     >
-      <div className="text-xs font-semibold text-text-secondary">
-        {toolUsage.toolName}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs font-medium">
+            {toolUsage.toolName}
+          </Badge>
+          <span className="text-xs text-text-tertiary">Tool</span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2 text-xs"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? "Hide Details" : "Show Details"}
+        </Button>
       </div>
-      <div className="mt-1 text-xs">
-        <div className="text-text-tertiary">Input:</div>
-        <pre className="mt-1 overflow-x-auto rounded bg-background-tertiary p-2 text-text-secondary">
-          {JSON.stringify(toolUsage.toolInput, null, 2)}
-        </pre>
-      </div>
-      <div className="mt-2 text-xs">
-        <div className="text-text-tertiary">Output:</div>
-        <pre className="mt-1 overflow-x-auto rounded bg-background-tertiary p-2 text-text-secondary">
-          {JSON.stringify(toolUsage.toolOutput, null, 2)}
-        </pre>
-      </div>
+
+      {expanded && (
+        <>
+          <div className="mt-2 text-xs">
+            <div className="flex items-center text-text-tertiary mb-1">
+              <div className="w-16">Input:</div>
+              <div className="h-px flex-1 bg-border-default mx-2"></div>
+            </div>
+            <pre className="mt-1 overflow-x-auto rounded bg-background-tertiary p-2 text-text-secondary text-xs">
+              {JSON.stringify(toolUsage.toolInput, null, 2)}
+            </pre>
+          </div>
+          <div className="mt-3 text-xs">
+            <div className="flex items-center text-text-tertiary mb-1">
+              <div className="w-16">Output:</div>
+              <div className="h-px flex-1 bg-border-default mx-2"></div>
+            </div>
+            <pre className="mt-1 overflow-x-auto rounded bg-background-tertiary p-2 text-text-secondary text-xs">
+              {JSON.stringify(toolUsage.toolOutput, null, 2)}
+            </pre>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -151,38 +187,49 @@ export function MessageItem({
   return (
     <div
       className={cn(
-        "group flex py-6 px-4",
-        sender === "user" ? "bg-background-primary" : "bg-background-secondary",
+        "group flex py-6 px-6 transition-colors",
+        sender === "user"
+          ? "bg-background-primary hover:bg-background-primary/90"
+          : "bg-background-secondary hover:bg-background-secondary/95",
         className,
       )}
     >
-      <div className="mr-4 flex-shrink-0">
-        <Avatar>
+      <div className="mr-4 flex-shrink-0 pt-1">
+        <Avatar className="border border-border-default">
           {sender === "user" ? (
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              U
+            </AvatarFallback>
           ) : (
-            <AvatarFallback>AI</AvatarFallback>
+            <AvatarFallback className="bg-secondary/10 text-secondary font-medium">
+              AI
+            </AvatarFallback>
           )}
         </Avatar>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 max-w-4xl">
         <div className="flex items-start justify-between">
-          <div className="text-sm font-medium text-text-primary">
-            {sender === "user"
-              ? "You"
-              : sender === "assistant"
-                ? "Assistant"
-                : "System"}
-          </div>
-          <div className="flex space-x-4">
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-medium text-text-primary">
+              {sender === "user"
+                ? "You"
+                : sender === "assistant"
+                  ? "Assistant"
+                  : "System"}
+            </div>
             <div className="text-xs text-text-tertiary">
               {timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })}
             </div>
-            <MessageActions actions={actions} onActionClick={onActionClick} />
+            {status === "error" && (
+              <Badge variant="destructive" className="text-xs">
+                Error
+              </Badge>
+            )}
           </div>
+          <MessageActions actions={actions} onActionClick={onActionClick} />
         </div>
         <div className="mt-2 prose prose-sm max-w-none text-text-primary">
           {content}
@@ -190,7 +237,7 @@ export function MessageItem({
 
         {/* Tool usage */}
         {toolUsage && toolUsage.length > 0 && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-3">
             {toolUsage.map((tool, index) => (
               <ToolUsageItem key={index} toolUsage={tool} />
             ))}
@@ -199,14 +246,32 @@ export function MessageItem({
 
         {/* Status indicator */}
         {status && status !== "sent" && (
-          <div className="mt-2 text-xs text-text-tertiary">
-            {status === "sending"
-              ? "Sending..."
-              : status === "error"
-                ? "Error sending message"
-                : status === "generating"
-                  ? "Generating response..."
-                  : null}
+          <div className="mt-3 text-xs flex items-center gap-2">
+            {status === "sending" && (
+              <>
+                <div className="animate-pulse w-1.5 h-1.5 rounded-full bg-text-tertiary"></div>
+                <span className="text-text-tertiary">Sending...</span>
+              </>
+            )}
+            {status === "error" && (
+              <span className="text-destructive">Error sending message</span>
+            )}
+            {status === "generating" && (
+              <div className="flex items-center gap-2 text-text-tertiary">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-text-tertiary animate-bounce"></div>
+                  <div
+                    className="w-1.5 h-1.5 rounded-full bg-text-tertiary animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-1.5 h-1.5 rounded-full bg-text-tertiary animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
+                </div>
+                <span>Generating response...</span>
+              </div>
+            )}
           </div>
         )}
       </div>

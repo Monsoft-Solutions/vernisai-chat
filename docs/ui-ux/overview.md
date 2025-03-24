@@ -6,6 +6,7 @@ The UI for the AI Chatbot application will be implemented using the following te
 
 - **React**: Frontend library for building user interfaces
 - **Vite**: Build tool and development server
+- **TanStack Router**: Type-safe routing with file-based routing support
 - **Tailwind CSS**: Utility-first CSS framework for styling
 - **Shadcn/UI**: Component library built on Tailwind and Radix
 - **Radix UI**: Unstyled, accessible component primitives
@@ -18,8 +19,16 @@ The application follows a monorepo architecture with the following structure:
 ```bash
 ├── apps/
 │   └── web/               # Main web application
+│       ├── src/
+│       │   ├── routes/    # TanStack Router file-based routes
+│       │   ├── pages/     # Page components (if not in routes)
+│       │   └── components/# App-specific components
 ├── packages/
 │   ├── ui/                # Shared UI components
+│   │   ├── src/
+│   │   │   ├── components/# Reusable UI components
+│   │   │   ├── styles/    # Global styles and themes
+│   │   │   └── lib/       # Utilities and hooks
 │   ├── api/               # API client and utilities
 │   ├── database/          # Database schemas and client
 │   ├── typescript-config/ # Shared TypeScript configurations
@@ -39,6 +48,23 @@ All reusable UI components will be implemented in the `packages/ui` directory. T
 4. **Theme-aware**: Support for light and dark modes
 5. **Well-documented**: Props, usage examples, and design considerations
 
+## Routing Strategy
+
+The application uses TanStack Router for type-safe routing with the following benefits:
+
+1. **File-based Routing**: Routes are defined by file structure in `apps/web/src/routes/`
+2. **Type Safety**: Full TypeScript support for route parameters and data
+3. **Code Splitting**: Automatic code splitting for better performance
+4. **Data Loading**: Built-in data loading and prefetching capabilities
+5. **Dev Tools**: Integrated router devtools for debugging
+
+Route structure follows these conventions:
+
+- `__root.tsx`: Root layout with navigation
+- `index.tsx`: Home page route
+- `$param.tsx`: Dynamic route parameters
+- `_layout.tsx`: Nested layouts (when needed)
+
 ## Implementation Roadmap
 
 The UI implementation will follow this roadmap:
@@ -48,12 +74,14 @@ The UI implementation will follow this roadmap:
    - Configure Tailwind theme
    - Set up Shadcn/UI components
    - Create core design tokens
+   - Configure TanStack Router
 
 2. **Core Components Implementation** (Week 2)
 
    - Layout components
    - Navigation components
    - Form components
+   - Route structure setup
 
 3. **Screen Implementation** (Weeks 3-4)
 
@@ -72,6 +100,7 @@ The UI implementation will follow this roadmap:
    - Component testing
    - Integration testing
    - Documentation completion
+   - Route testing
 
 ## Component Documentation Standards
 
@@ -91,4 +120,5 @@ When integrating UI components into the application:
 2. Follow the established design patterns
 3. Maintain consistency with the design system
 4. Leverage Tailwind utility classes for custom styling when needed
-5. Adhere to the accessibility guidelines
+5. Use TanStack Router's type-safe APIs for navigation
+6. Follow file-based routing conventions for new routes

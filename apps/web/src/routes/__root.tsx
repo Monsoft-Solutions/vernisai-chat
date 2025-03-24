@@ -17,6 +17,20 @@ export const Route = createRootRoute({
               Home
             </Link>
             <Link
+              to="/dashboard"
+              activeProps={{ className: "font-bold text-primary-500" }}
+              className="hover:text-primary-500 transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/agent-builder"
+              activeProps={{ className: "font-bold text-primary-500" }}
+              className="hover:text-primary-500 transition-colors"
+            >
+              Agent Builder
+            </Link>
+            <Link
               to="/chat"
               activeProps={{ className: "font-bold text-primary-500" }}
               className="hover:text-primary-500 transition-colors"
@@ -27,7 +41,7 @@ export const Route = createRootRoute({
         </div>
       </header>
 
-      <main className="container mx-auto p-4">
+      <main className=" mx-auto">
         <Outlet />
       </main>
 
