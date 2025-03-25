@@ -4,6 +4,8 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "../router";
 import { createExpressContext } from "../trpc";
 import { config } from "../config";
+import { setupRequestLogging } from "../utils/request-logger";
+import { logger } from "../utils/logger";
 
 /**
  * Create an Express application with tRPC middleware
@@ -21,9 +23,19 @@ export const createExpressApp = () => {
   );
   app.use(express.json());
 
+  // Set up request logging middleware
+  setupRequestLogging(app);
+
   // Health check endpoint
   app.get("/health", (req, res) => {
     res.status(200).json({ status: "ok" });
+  });
+
+  // Test error endpoint
+  app.get("/test-error", (req, res, next) => {
+    logger.error("Test error triggered");
+    const error = new Error("Test error");
+    next(error);
   });
 
   // OpenAPI documentation endpoint if enabled
@@ -63,18 +75,19 @@ export const startExpressServer = () => {
   const port = config.port;
 
   const server = app.listen(port, () => {
-    console.log(`Express server listening on port ${port}`);
-    console.log(`API endpoint available at ${config.trpcEndpoint}`);
-    if (config.openApi.enabled) {
-      console.log(`OpenAPI documentation available at ${config.openApi.path}`);
-    }
+    logger.info(`Express server listening on port ${port}`, {
+      port,
+      apiEndpoint: config.trpcEndpoint,
+      openApiEnabled: config.openApi.enabled,
+      openApiPath: config.openApi.enabled ? config.openApi.path : null,
+    });
   });
 
   // Handle graceful shutdown
   const handleShutdown = () => {
-    console.log("Shutting down Express server...");
+    logger.info("Shutting down Express server...");
     server.close(() => {
-      console.log("Express server closed");
+      logger.info("Express server closed");
       process.exit(0);
     });
   };

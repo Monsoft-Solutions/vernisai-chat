@@ -1,0 +1,40 @@
+{
+  "name": "@vernisai/logger",
+  "version": "0.1.0",
+  "description": "Unified logging solution for VernisAI applications",
+  "author": "Monsoft Solutions - https://monsoftsolutions.com",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@logtail/node": "^0.5.2",
+    "@logtail/winston": "^0.5.2",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0",
+    "@monsoft/vernisai-config": "*"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.17.25",
+    "@types/uuid": "^9.0.8",
+    "@vernisai/testing": "*",
+    "@vitest/coverage-v8": "^3.0.9",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.9"
+  }
+}

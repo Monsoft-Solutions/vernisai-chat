@@ -8,6 +8,10 @@ import "./style.css";
 import { routeTree } from "./routeTree.gen";
 import { trpc, useCreateTrpcClient } from "./utils/trpc";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { initSentry, SentryErrorBoundary } from "./utils/sentry";
+
+// Initialize Sentry
+initSentry();
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -29,11 +33,28 @@ if (!rootElement.innerHTML) {
     const { trpcClient, queryClient } = useCreateTrpcClient();
 
     return (
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </trpc.Provider>
+      <SentryErrorBoundary
+        fallback={({ error }) => (
+          <div className="flex flex-col items-center justify-center h-screen p-4 text-center">
+            <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
+            <p className="mb-4 text-red-500">
+              {(error as Error)?.message || "Unknown error occurred"}
+            </p>
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => window.location.reload()}
+            >
+              Reload page
+            </button>
+          </div>
+        )}
+      >
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </trpc.Provider>
+      </SentryErrorBoundary>
     );
   };
 

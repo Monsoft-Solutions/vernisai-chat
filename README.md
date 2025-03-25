@@ -14,6 +14,7 @@ VernisAI Chat provides a powerful chat interface and intelligent agent capabilit
 - **API-First Architecture**: Fully accessible via tRPC endpoints with TypeScript SDK
 - **Third-Party Integration**: OpenAPI documentation and SDK for third-party developers
 - **Serverless Deployment**: Efficient scaling and cost optimization
+- **Comprehensive Logging**: End-to-end logging with Sentry (client) and a unified logger package (server)
 
 ## Tech Stack
 
@@ -25,6 +26,7 @@ VernisAI Chat provides a powerful chat interface and intelligent agent capabilit
 - **AI Integration**: Support for OpenAI, Anthropic, and other LLM providers
 - **Monorepo**: Turborepo for efficient development workflow
 - **Deployment**: Serverless functions on Vercel or AWS Lambda
+- **Logging**: Sentry (client-side), Winston + Better Stack (server-side) via @vernisai/logger package
 
 ## Project Structure
 
@@ -39,6 +41,8 @@ This is a monorepo managed with Turborepo containing the following apps and pack
 - `@vernisai/ui`: Shared UI component library built on Tailwind and Radix
 - `@vernisai/api`: tRPC API implementation and utilities
 - `@vernisai/database`: Database schemas and client with Drizzle ORM
+- `@vernisai/logger`: Unified logging solution with extensible transport system
+- `@vernisai/types`: Shared TypeScript type definitions
 - `@vernisai/eslint-config`: Shared ESLint configurations
 - `@vernisai/typescript-config`: Shared TypeScript configurations
 
@@ -71,7 +75,7 @@ This is a monorepo managed with Turborepo containing the following apps and pack
    # Update the values in .env.local with your configuration
    ```
 
-   The only required environment variable is `DATABASE_URL`. All other variables have sensible defaults. See [Environment Configuration](docs/core-architecture/04-environment-configuration.md) for details.
+   The required environment variables include `DATABASE_URL` and logging-related variables. See [Environment Configuration](docs/core-architecture/04-environment-configuration.md) and [Logging Documentation](docs/logs/README.md) for details.
 
 4. Start the development server
    ```sh
@@ -102,8 +106,25 @@ Comprehensive documentation is available in the `docs` directory:
 - **UI/UX**: Design system, component specifications, and screen implementations
 - **Integration Components**: AI provider integrations, authentication, and third-party services
 - **External API**: API documentation for third-party developers
+- **Logging**: Client-side (Sentry) and server-side (@vernisai/logger) logging implementation
 
 See the [Platform Roadmap](docs/roadmap.md) for a detailed implementation plan.
+
+## Logging System
+
+VernisAI Chat implements a comprehensive logging system:
+
+- **Client-Side**: Sentry integration for error tracking, performance monitoring, and user activity analysis
+- **Server-Side**: Unified `@vernisai/logger` package with:
+  - Winston-based structured logging
+  - Better Stack (Logtail) integration for centralized log management
+  - Extensible transport system supporting custom log destinations
+  - Context tracking with AsyncLocalStorage
+  - Express and tRPC middleware for request/response logging
+  - Sensitive data sanitization for security
+  - Configurable log levels and formatting
+
+The `@vernisai/logger` package is designed to be transport-agnostic, allowing easy integration with additional logging platforms beyond Logtail, such as Elasticsearch, Splunk, Datadog, or custom solutions. See [Logging Documentation](docs/logs/README.md) for details.
 
 ## Contributing
 
