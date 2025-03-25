@@ -14,7 +14,6 @@
   "dependencies": {
     "@sentry/browser": "^9.9.0",
     "@sentry/react": "^9.9.0",
-    "@sentry/tracing": "^7.120.3",
     "@sentry/vite-plugin": "^3.2.2",
     "@tanstack/react-query": "^4.36.1",
     "@trpc/client": "^10.37.1",
