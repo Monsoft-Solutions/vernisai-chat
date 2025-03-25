@@ -1,0 +1,4 @@
+{
+  "extends": "@vernisai/eslint-config",
+  "ignorePatterns": ["node_modules/", "dist/"]
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "@vernisai/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["node"],
+    "jsx": "react-jsx"
+  },
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
+}

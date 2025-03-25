@@ -16,4 +16,5 @@ module.exports = {
   rules: {
     "@typescript-eslint/no-non-null-assertion": "off",
   },
+  ignorePatterns: ["dist/**", "**/dist/**", "node_modules/**", ".eslintrc.cjs"],
 };

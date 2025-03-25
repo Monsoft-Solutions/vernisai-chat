@@ -1,7 +1,10 @@
 {
   "extends": "@vernisai/typescript-config/vite.json",
   "include": ["src"],
+  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "skipLibCheck": true
   }
 }
