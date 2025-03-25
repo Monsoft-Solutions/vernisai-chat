@@ -18,6 +18,10 @@ export * from "./utils/formatters";
 export * from "./transports/console";
 export * from "./transports/logtail";
 
+// Export middleware
+export * from "./middleware/express";
+export * from "./middleware/trpc";
+
 // Default export for convenience
 import { logger } from "./core/logger";
 export default logger;

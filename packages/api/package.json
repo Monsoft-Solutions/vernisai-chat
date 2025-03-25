@@ -23,11 +23,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@logtail/node": "^0.5.2",
-    "@logtail/winston": "^0.5.2",
     "@monsoft/vernisai-config": "*",
     "@trpc/server": "^10.44.1",
     "@vernisai/database": "*",
+    "@vernisai/logger": "*",
     "@vernisai/types": "^0.1.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
@@ -35,7 +34,6 @@
     "superjson": "^2.2.1",
     "trpc-openapi": "^1.2.0",
     "uuid": "^11.1.0",
-    "winston": "^3.17.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

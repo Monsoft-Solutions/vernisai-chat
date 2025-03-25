@@ -1,6 +1,6 @@
 import { config } from "./config";
 import { startExpressServer } from "./adapters/express";
-import logger from "./utils/logger";
+import { logger } from "./utils/logger";
 
 /**
  * Start the server if running in server mode

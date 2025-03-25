@@ -5,7 +5,7 @@ import { appRouter } from "../router";
 import { createExpressContext } from "../trpc";
 import { config } from "../config";
 import { setupRequestLogging } from "../utils/request-logger";
-import logger from "../utils/logger";
+import { logger } from "../utils/logger";
 
 /**
  * Create an Express application with tRPC middleware
