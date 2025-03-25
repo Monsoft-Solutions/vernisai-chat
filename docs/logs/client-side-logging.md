@@ -12,6 +12,47 @@ Client-side logging captures errors and performance metrics from the user's brow
 - Feature usage patterns
 - Browser and device compatibility issues
 
+## Integration with @vernisai/logger
+
+The client-side Sentry implementation complements the server-side `@vernisai/logger` package to provide end-to-end observability across the entire application stack. The two systems work together by:
+
+- Using consistent request IDs to correlate client and server events
+- Tracking user context across both systems
+- Providing comprehensive error tracking from browser to backend
+- Enabling holistic performance monitoring throughout the request lifecycle
+
+### Request Correlation
+
+To correlate client-side events with server-side logs:
+
+```typescript
+// When sending API requests from the client
+import * as Sentry from "@sentry/react";
+import { v4 as uuidv4 } from "uuid";
+
+// Generate or reuse a request ID
+const requestId = uuidv4();
+
+// Add to Sentry breadcrumb
+Sentry.addBreadcrumb({
+  category: "api.request",
+  message: "Sending API request",
+  data: {
+    endpoint: "/api/data",
+    requestId,
+  },
+});
+
+// Include in API request headers
+fetch("/api/data", {
+  headers: {
+    "X-Request-ID": requestId,
+  },
+});
+
+// The server's @vernisai/logger will extract this ID and include it in all related logs
+```
+
 ## Setup and Configuration
 
 ### Installation
@@ -200,103 +241,152 @@ Sentry.init({
 });
 ```
 
-### Consent Management
+## Advanced Features
 
-For regions with strict privacy laws like GDPR:
+### Monitoring tRPC Client Requests
+
+To monitor tRPC client requests from the frontend:
 
 ```typescript
-// Function to check if user has given consent
-function userHasGivenConsent() {
-  return localStorage.getItem('errorReportingConsent') === 'true';
+import { createTRPCReact } from "@trpc/react-query";
+import * as Sentry from "@sentry/react";
+
+// Create a wrapper for the tRPC client
+export function createTRPCClientWithSentry<
+  T extends ReturnType<typeof createTRPCReact>,
+>(client: T) {
+  // Create a proxy that captures client errors and performance
+  return new Proxy(client, {
+    get(target, prop) {
+      const value = target[prop];
+
+      if (typeof value === "function") {
+        // Intercept query and mutation calls
+        return new Proxy(value, {
+          apply(target, thisArg, args) {
+            const procedureName = String(prop);
+
+            // Start transaction for performance tracking
+            const transaction = Sentry.startTransaction({
+              name: `tRPC ${procedureName}`,
+              op: "trpc.client",
+            });
+
+            // Add breadcrumb for the request
+            Sentry.addBreadcrumb({
+              category: "trpc.request",
+              message: `tRPC request: ${procedureName}`,
+              data: { args: args[0] },
+            });
+
+            // Call the original method
+            const result = target.apply(thisArg, args);
+
+            // Handle promises
+            if (result && typeof result.then === "function") {
+              return result
+                .then((data) => {
+                  transaction.setStatus("ok");
+                  transaction.finish();
+                  return data;
+                })
+                .catch((error) => {
+                  transaction.setStatus("error");
+                  transaction.finish();
+
+                  // Capture the error
+                  Sentry.captureException(error, {
+                    tags: { procedureName },
+                    extra: { args: args[0] },
+                  });
+
+                  throw error;
+                });
+            }
+
+            transaction.finish();
+            return result;
+          },
+        });
+      }
+
+      return value;
+    },
+  });
+}
+```
+
+### Custom Logging to Match @vernisai/logger Format
+
+For consistent logging format between client and server:
+
+```typescript
+import * as Sentry from "@sentry/react";
+
+// Define log levels that match the server
+export enum LogLevel {
+  ERROR = "error",
+  WARN = "warn",
+  INFO = "info",
+  DEBUG = "debug",
 }
 
-// Initialize Sentry based on consent
-Sentry.init({
-  dsn: "YOUR_SENTRY_DSN",
-  enabled: userHasGivenConsent() && process.env.NODE_ENV !== 'development',
-  // ... other configuration
-});
+// Create a client logger with similar API to server logger
+export const clientLogger = {
+  error(message: string, context?: Record<string, any>) {
+    console.error(message, context);
+    Sentry.captureMessage(message, {
+      level: "error",
+      extra: context,
+    });
+  },
 
-// Consent management UI
-function ErrorReportingConsent() {
-  const [consent, setConsent] = useState(userHasGivenConsent());
+  warn(message: string, context?: Record<string, any>) {
+    console.warn(message, context);
+    Sentry.captureMessage(message, {
+      level: "warning",
+      extra: context,
+    });
+  },
 
-  const updateConsent = (newConsent) => {
-    localStorage.setItem('errorReportingConsent', newConsent);
-    setConsent(newConsent);
-    // Refresh page to update Sentry initialization
-    window.location.reload();
-  };
+  info(message: string, context?: Record<string, any>) {
+    console.info(message, context);
+    if (process.env.NODE_ENV !== "production") {
+      Sentry.captureMessage(message, {
+        level: "info",
+        extra: context,
+      });
+    }
+  },
 
-  return (
-    <div>
-      <label>
-        <input
-          type="checkbox"
-          checked={consent}
-          onChange={(e) => updateConsent(e.target.checked)}
-        />
-        Allow error reporting to improve application quality
-      </label>
-    </div>
-  );
-}
+  debug(message: string, context?: Record<string, any>) {
+    if (process.env.NODE_ENV !== "production") {
+      console.debug(message, context);
+    }
+  },
+};
 ```
 
-## Advanced Configuration
+## Best Practices
 
-### Source Maps
+1. **Implement Breadcrumbs**: Add breadcrumbs before operations that might fail to provide context
+2. **Use Custom User Context**: Track user information for better error attribution
+3. **Monitor Performance**: Set up transactions for key user interactions
+4. **Add Metadata**: Include browser, device, and application version with errors
+5. **Handle Network Errors**: Specifically capture and classify connectivity issues
+6. **Avoid Noisy Alerts**: Filter out expected errors and focus on actionable issues
+7. **Tagged Releases**: Tag Sentry releases with version numbers for source mapping
+8. **Scope Management**: Create scopes for different parts of your application
 
-Ensure proper source maps for better error debugging:
+## Sentry Dashboard Configuration
 
-```typescript
-// In your Vite/Webpack configuration
-{
-  build: {
-    sourcemap: true;
-  }
-}
-```
+After setting up client-side logging, configure your Sentry dashboard:
 
-### Release Tracking
-
-Track which release version an error occurred in:
-
-```typescript
-Sentry.init({
-  // ... other configuration
-  release: "vernisai-chat@" + process.env.npm_package_version,
-});
-```
-
-### Performance Tracing
-
-Configure default transaction sampling:
-
-```typescript
-Sentry.init({
-  // ... other configuration
-  integrations: [
-    new BrowserTracing({
-      tracingOrigins: ["localhost", "your-site.com"],
-      routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-        history,
-        routes,
-        matchPath,
-      ),
-    }),
-  ],
-  tracesSampleRate: 0.1, // Sample 10% of transactions
-});
-```
-
-## Sentry Dashboard Usage
-
-1. **Issue Tracking**: Monitor and triage errors by frequency and impact
-2. **Performance Monitoring**: Track page load times and other metrics
-3. **User Feedback**: Collect user feedback when errors occur
-4. **Release Health**: Monitor error rates by release
-5. **Alerts**: Set up notifications for critical issues
+1. **Create Alert Rules**: Set up alerts for critical errors
+2. **Configure Issue Grouping**: Organize similar errors together
+3. **Set Up Integrations**: Connect Sentry to Slack, Teams, or Email for notifications
+4. **Add Team Members**: Invite team members and assign roles
+5. **Define On-Call Schedule**: Create on-call schedules for urgent issues
 
 ## Implementation Checklist
 
