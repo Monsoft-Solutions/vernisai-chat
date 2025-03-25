@@ -9,6 +9,7 @@ This package contains the tRPC API implementation for the VernisAI application. 
 - OpenAPI documentation generation
 - Multi-tenant organization support
 - Serverless adapters for Vercel and AWS Lambda
+- Comprehensive logging with Winston and Better Stack integration
 
 ## Getting Started
 
@@ -35,6 +36,42 @@ npm run build
 ```bash
 npm run generate:openapi
 ```
+
+## Logging System
+
+The API includes a robust logging system based on Winston with Better Stack integration:
+
+### Configuration
+
+Configure logging through environment variables:
+
+```bash
+# Logging configuration
+LOG_LEVEL=info                                  # Log levels: error, warn, info, http, verbose, debug
+LOGTAIL_SOURCE_TOKEN=your_better_stack_token    # Token from Better Stack dashboard
+```
+
+### Usage
+
+```typescript
+import logger from "./utils/logger";
+
+// Use different log levels
+logger.error("Error occurred", { errorDetails });
+logger.warn("Warning situation", { details });
+logger.info("Information", { data });
+logger.http("HTTP request details", { request });
+logger.debug("Debug information", { debugData });
+```
+
+### Features
+
+- Request/response logging for Express
+- Error tracking with stack traces
+- Performance metrics
+- TRPC request logging
+- Context tracking across async operations
+- Sanitization of sensitive data
 
 ## API Structure
 

@@ -1,5 +1,6 @@
 import { config } from "./config";
 import { startExpressServer } from "./adapters/express";
+import logger from "./utils/logger";
 
 /**
  * Start the server if running in server mode
@@ -9,12 +10,16 @@ import { startExpressServer } from "./adapters/express";
  * @returns The server instance if started, or null if in serverless mode
  */
 export const startServer = () => {
-  console.log("STarting the server...");
-  console.log("config", config);
+  logger.info("Starting the server...", {
+    serverMode: config.serverMode,
+    environment: process.env.NODE_ENV,
+  });
+
   if (config.serverMode === "server") {
     return startExpressServer();
   }
-  console.log("API is configured for serverless mode. Server not started.");
+
+  logger.info("API is configured for serverless mode. Server not started.");
   return null;
 };
 
