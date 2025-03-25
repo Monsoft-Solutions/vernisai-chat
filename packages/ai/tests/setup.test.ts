@@ -2,7 +2,7 @@
  * Setup tests for the AI package
  */
 
-import { ModelPreset } from "../src/types/model";
+import { ModelPreset } from "../src/types/model.type";
 
 describe("AI Package Setup", () => {
   it("should have model presets defined", () => {

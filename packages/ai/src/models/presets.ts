@@ -7,7 +7,7 @@ import {
   ModelPreset,
   OpenAIModelConfig,
   AnthropicModelConfig,
-} from "../types/model";
+} from "../types/model.type";
 
 /**
  * Default model configurations for each preset

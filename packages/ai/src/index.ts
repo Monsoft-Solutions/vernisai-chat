@@ -11,4 +11,7 @@ export * from "./types";
 // Export modules
 export * from "./models";
 
+// Export tools functionality
+export * from "./tools";
+
 // Re-export sub-modules will be added as they are implemented

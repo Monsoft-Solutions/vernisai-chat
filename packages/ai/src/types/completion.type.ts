@@ -2,7 +2,7 @@
  * Types for completion responses in the AI package
  */
 
-import { Message } from "./message";
+import { Message } from "./message.type";
 
 /**
  * Options for a completion request
