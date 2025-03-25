@@ -48,7 +48,20 @@ ctices:**
 
 ---
 
+## For a plan to improve an existing implementation
+
+in the folder /implementation-plans create a file with the name of the implementation. Inside, craft the documentation for the implementation.
+
+Create a checklist with actionable changes you need to make. Each task should be unitary. 
+
+In this documentation, beside what we need to create, reference the files we need to modify, the reason and what we want to accomplish
+
+---
+
 ## Always
+
+- **Check current project structure**
+  Deeply understand the structure of the monorepo, the package it contains and what can be re-used.
 
 - **Outline First:**  
   Before doing anything, create a clear outline of your approach. Review and refine it to ensure it covers all bases.
