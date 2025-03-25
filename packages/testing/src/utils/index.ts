@@ -1,4 +1,5 @@
 export * from "./react";
+import { vi } from "vitest";
 
 /**
  * Creates a random string for test identifiers
@@ -84,12 +85,9 @@ export function createTypedMock<T extends (...args: unknown[]) => unknown>(): {
 } {
   // Mock implementation using global vi
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mock = { fn: () => {} } as any as MockedFunction<T>;
-  mock.mockImplementation = () => {};
-  mock.mockResolvedValue = () => {};
-  mock.mockRejectedValue = () => {};
-  mock.mockReturnValue = () => {};
-  mock.mock = { calls: [] };
+  // We need to use 'any' here to create a mock object with the correct structure
+  // that matches the MockedFunction interface
+  const mock = vi.fn() as unknown as MockedFunction<T>;
 
   return {
     mock,

@@ -29,7 +29,16 @@ export function setupCustomMatchers(expectObj = expectMock) {
     /**
      * Check if response is successful (status 2xx)
      */
-    toBeSuccessful(received: { status?: number; statusCode?: number }) {
+    toBeSuccessful(
+      received: { status?: number; statusCode?: number } | null | undefined,
+    ) {
+      if (!received) {
+        return {
+          pass: false,
+          message: () =>
+            `expected response to be successful, but received ${received}`,
+        };
+      }
       const status = received?.status || received?.statusCode;
       const pass = typeof status === "number" && status >= 200 && status < 300;
 
@@ -43,7 +52,9 @@ export function setupCustomMatchers(expectObj = expectMock) {
     /**
      * Alias for toBeSuccessful
      */
-    toHaveSucceeded(received: { status?: number; statusCode?: number }) {
+    toHaveSucceeded(
+      received: { status?: number; statusCode?: number } | null | undefined,
+    ) {
       // @ts-expect-error - this is handled by the framework
       return this.toBeSuccessful(received);
     },
@@ -56,6 +67,15 @@ export function setupCustomMatchers(expectObj = expectMock) {
         received instanceof Date ? received : new Date(received as string);
       const expectedDate =
         expected instanceof Date ? expected : new Date(expected as string);
+
+      // Check for invalid dates
+      if (isNaN(receivedDate.getTime()) || isNaN(expectedDate.getTime())) {
+        return {
+          pass: false,
+          message: () =>
+            `expected valid dates for comparison, got ${received} and ${expected}`,
+        };
+      }
 
       const diffMs = Math.abs(receivedDate.getTime() - expectedDate.getTime());
       const pass = diffMs <= toleranceMs;
@@ -97,10 +117,10 @@ export function setupCustomMatchers(expectObj = expectMock) {
      * Check if mock was called at least once with specific args
      */
     toHaveBeenCalledAtLeastOnceWith(
-      received: { mock?: { calls: unknown[][] } },
+      received: { mock?: { calls: unknown[][] } } | null | undefined,
       ...args: unknown[]
     ) {
-      const calls = received.mock?.calls || [];
+      const calls = received?.mock?.calls || [];
 
       const pass = calls.some((call) => {
         if (call.length !== args.length) return false;

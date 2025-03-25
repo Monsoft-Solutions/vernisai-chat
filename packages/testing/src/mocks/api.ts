@@ -1,4 +1,5 @@
 import { MockOptions, ApiResponseMock } from "../types";
+import { delay } from "../utils";
 
 /**
  * Creates a mock API client for testing
@@ -7,7 +8,7 @@ import { MockOptions, ApiResponseMock } from "../types";
  * @returns Mocked API client
  */
 export function mockApi(options: MockOptions = {}) {
-  const { shouldError = false, delay = 0 } = options;
+  const { shouldError = false, delay: delayMs = 0 } = options;
 
   // Simple response cache for consistent responses
   const responseCache = new Map<string, ApiResponseMock>();
@@ -16,9 +17,7 @@ export function mockApi(options: MockOptions = {}) {
    * Helper to simulate network delay
    */
   const simulateDelay = () =>
-    delay > 0
-      ? new Promise((resolve) => setTimeout(resolve, delay))
-      : Promise.resolve();
+    delayMs > 0 ? delay(delayMs) : Promise.resolve();
 
   /**
    * Create a mock response for a specific endpoint
@@ -36,8 +35,7 @@ export function mockApi(options: MockOptions = {}) {
   const request = async <T>(
     method: string,
     endpoint: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _data?: unknown,
+    data?: unknown,
   ): Promise<T> => {
     await simulateDelay();
 
@@ -54,8 +52,12 @@ export function mockApi(options: MockOptions = {}) {
       return cachedResponse.data as T;
     }
 
-    // Default success response
-    return { success: true } as unknown as T;
+    // Default success response with the provided data
+    return {
+      success: true,
+      data: data || null,
+      message: "Success (default mock response)",
+    } as unknown as T;
   };
 
   return {
@@ -112,6 +114,7 @@ export function mockApi(options: MockOptions = {}) {
 
     /**
      * Access to the response cache
+     * @internal This is exposed for testing purposes only
      */
     _responseCache: responseCache,
   };
