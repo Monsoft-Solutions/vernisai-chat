@@ -5,3 +5,4 @@
 export * from "./organization";
 export * from "./agent";
 export * from "./usage";
+export * from "./conversation";

@@ -12,7 +12,7 @@ import {
   Button,
 } from "@vernisai/ui";
 import { trpc } from "../utils/trpc";
-import type { Tool, TestMessage, AgentTemplate } from "../types/dashboard";
+import type { Tool, TestMessage, AgentTemplate } from "@vernisai/types";
 
 export const AgentBuilderForm: React.FC = () => {
   // Basic information state

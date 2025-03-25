@@ -50,3 +50,13 @@ export type SendMessageResponse = {
   messageId: string;
   sessionId: string;
 };
+
+/**
+ * Test message for agent testing
+ */
+export type TestMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+};

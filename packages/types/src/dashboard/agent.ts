@@ -27,3 +27,16 @@ export type Agent = {
   avatarUrl?: string;
   icon?: string; // Icon name as a string
 };
+
+/**
+ * Template for creating new agents
+ */
+export type AgentTemplate = {
+  id: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  recommendedTools: string[];
+  model: string;
+  icon?: string;
+};

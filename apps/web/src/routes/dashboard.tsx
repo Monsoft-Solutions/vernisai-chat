@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { trpc } from "../utils/trpc";
-import type { Conversation, Agent } from "../types/dashboard";
+import type { ConversationSummary, Agent } from "@vernisai/types";
 
 // Define the Dashboard route
 export const Route = createFileRoute("/dashboard")({
@@ -83,13 +83,13 @@ function Dashboard() {
   const filteredConversations =
     recentConversations.data
       ?.filter(
-        (conv: Conversation) =>
+        (conv: ConversationSummary) =>
           searchTerm === "" ||
           conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           conv.snippet.toLowerCase().includes(searchTerm.toLowerCase()),
       )
       .filter(
-        (conv: Conversation) =>
+        (conv: ConversationSummary) =>
           conversationFilter === "all" ||
           conv.model.toLowerCase().includes(conversationFilter),
       ) || [];
@@ -175,7 +175,7 @@ function Dashboard() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConversations.map((conversation: Conversation) => (
+            {filteredConversations.map((conversation: ConversationSummary) => (
               <ConversationCard
                 key={conversation.id}
                 id={conversation.id}

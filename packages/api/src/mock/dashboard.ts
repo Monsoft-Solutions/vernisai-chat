@@ -1,13 +1,13 @@
 import {
   OrganizationInfo,
-  Conversation,
+  ConversationSummary,
   UsageData,
   Agent,
   Tool,
   Model,
   TestMessage,
   AgentTemplate,
-} from "../types/dashboard";
+} from "@vernisai/types";
 
 export const mockOrganizationInfo: OrganizationInfo = {
   name: "VernisAI Inc.",
@@ -20,7 +20,7 @@ export const mockOrganizationInfo: OrganizationInfo = {
   usageLimit: 10000,
 };
 
-export const mockRecentConversations: Conversation[] = [
+export const mockRecentConversations: ConversationSummary[] = [
   {
     id: "1",
     title: "Marketing Campaign Ideas",

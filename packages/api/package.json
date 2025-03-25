@@ -26,6 +26,7 @@
     "@monsoft/vernisai-config": "*",
     "@trpc/server": "^10.44.1",
     "@vernisai/database": "*",
+    "@vernisai/types": "^0.1.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "next": "^14.0.4",
