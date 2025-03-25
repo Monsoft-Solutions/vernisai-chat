@@ -1,95 +1,49 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  ChatPage,
-  type ChatSession,
-  type Tool,
-  type MessageSender,
-} from "@vernisai/ui";
+import { ChatPage } from "@vernisai/ui";
+import { useState, useEffect } from "react";
+import { chatClient } from "../../utils/trpc-chat";
 
 export const Route = createFileRoute("/chat/")({
   component: ChatRoute,
 });
 
 function ChatRoute() {
-  // Mock data for demo
-  const mockSessions: ChatSession[] = [
-    {
-      id: "1",
-      name: "General conversation",
-      agentName: "VernisAI Assistant",
-      agentDescription:
-        "A helpful AI assistant that can answer questions and perform tasks.",
-      messages: [
-        {
-          id: "msg1",
-          content: "Hello! How can I help you today?",
-          sender: "assistant" as MessageSender,
-          timestamp: new Date(Date.now() - 3600000),
-          status: "sent",
-        },
-        {
-          id: "msg2",
-          content: "I'm looking for information about machine learning.",
-          sender: "user" as MessageSender,
-          timestamp: new Date(Date.now() - 3000000),
-          status: "sent",
-        },
-        {
-          id: "msg3",
-          content:
-            "Machine learning is a field of inquiry devoted to understanding and building methods that 'learn', that is, methods that leverage data to improve performance on some set of tasks. It is seen as a part of artificial intelligence.",
-          sender: "assistant" as MessageSender,
-          timestamp: new Date(Date.now() - 2400000),
-          status: "sent",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Code assistance",
-      agentName: "VernisAI Code Helper",
-      agentDescription:
-        "An AI assistant specialized in helping with coding tasks and debugging.",
-      messages: [
-        {
-          id: "msg1",
-          content:
-            "I can help you with programming questions and code reviews. What do you need help with?",
-          sender: "assistant" as MessageSender,
-          timestamp: new Date(Date.now() - 86400000),
-          status: "sent",
-        },
-      ],
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(true);
 
-  const mockTools: Tool[] = [
-    {
-      id: "tool1",
-      name: "Web Search",
-      description: "Search the web for information",
-      icon: "search",
-    },
-    {
-      id: "tool2",
-      name: "Code Interpreter",
-      description: "Run and analyze code",
-      icon: "code",
-    },
-    {
-      id: "tool3",
-      name: "Knowledge Base",
-      description: "Access internal knowledge base",
-      icon: "database",
-    },
-  ];
+  // Fetch chat sessions and tools using tRPC
+  const sessionsQuery = chatClient.chat.getSessions.useQuery();
+  const toolsQuery = chatClient.chat.getTools.useQuery();
+
+  // Set loading state based on queries
+  useEffect(() => {
+    if (sessionsQuery.isLoading || toolsQuery.isLoading) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [sessionsQuery.isLoading, toolsQuery.isLoading]);
+
+  // Handle loading state
+  if (isLoading || sessionsQuery.isError || toolsQuery.isError) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        {sessionsQuery.isError || toolsQuery.isError
+          ? "Error loading chat data"
+          : "Loading chat data..."}
+      </div>
+    );
+  }
+
+  // If we have sessions and tools, render the chat page
+  const sessions = sessionsQuery.data || [];
+  const tools = toolsQuery.data || [];
 
   return (
     <div className="h-[calc(100vh-120px)]">
       <ChatPage
-        sessions={mockSessions}
-        currentSessionId="1"
-        tools={mockTools}
+        sessions={sessions}
+        currentSessionId={sessions.length > 0 ? sessions[0].id : ""}
+        tools={tools}
         onNewChat={() => {
           console.log("New chat requested");
         }}
