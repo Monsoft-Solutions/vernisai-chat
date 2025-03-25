@@ -87,7 +87,7 @@ export const userEvent: UserEvent = {
  * @returns Promise that resolves when condition is true
  */
 export async function waitFor(
-  callback: () => boolean | void | Promise<boolean | void>,
+  callback: () => boolean | undefined | Promise<boolean | undefined>,
   options: {
     timeout?: number;
     interval?: number;
@@ -132,10 +132,20 @@ export const createEvent = {
   },
 
   change: (element: HTMLElement, value: string) => {
-    Object.defineProperty(element, "value", {
-      value,
-      writable: true,
-    });
+    // If it's an input element, set the value property directly
+    if (
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLSelectElement ||
+      element instanceof HTMLTextAreaElement
+    ) {
+      element.value = value;
+    } else {
+      // For other elements, use Object.defineProperty as a fallback
+      Object.defineProperty(element, "value", {
+        value,
+        writable: true,
+      });
+    }
 
     const event = new Event("change", { bubbles: true });
     element.dispatchEvent(event);

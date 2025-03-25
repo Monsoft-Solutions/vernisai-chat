@@ -4,10 +4,13 @@
  * This file runs before all tests to set up the testing environment.
  */
 
+// Import from Vitest
+import { afterAll } from "vitest";
+
 // Define custom matchers
 import "./matchers";
 
-// Set up console mocks to catch warnings
+// Configure console mocks to avoid noise during tests
 const originalConsoleError = console.error;
 const originalConsoleWarn = console.warn;
 
@@ -45,3 +48,10 @@ console.warn = (...args) => {
 
   originalConsoleWarn(...args);
 };
+
+// Restore original console methods after all tests
+// This is handled by the test framework's afterAll hook
+afterAll(() => {
+  console.error = originalConsoleError;
+  console.warn = originalConsoleWarn;
+});
