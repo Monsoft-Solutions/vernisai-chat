@@ -11,7 +11,7 @@ export const useCreateTrpcClient = () => {
   const trpcClient = trpc.createClient({
     links: [
       httpBatchLink({
-        url: import.meta.env.VITE_API_URL || "http://localhost:3001/trpc",
+        url: import.meta.env.VITE_API_URL || "http://localhost:3000/api/trpc",
         headers: () => {
           const headers: Record<string, string> = {};
 
