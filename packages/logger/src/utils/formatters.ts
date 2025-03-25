@@ -1,22 +1,4 @@
 import winston from "winston";
-import { contextManager } from "../core";
-
-/**
- * Create a formatter that adds request context to logs
- */
-export function createContextFormat() {
-  return winston.format((info) => {
-    const context = contextManager.getContext();
-    if (context) {
-      // Add context data to log entry
-      return {
-        ...info,
-        ...context,
-      };
-    }
-    return info;
-  });
-}
 
 /**
  * Create a development-friendly console format

@@ -23,7 +23,9 @@ const defaultOptions: LoggerOptions = {
   },
   logtail: {
     sourceToken: process.env.LOGTAIL_SOURCE_TOKEN,
-    endpoint: process.env.LOGTAIL_ENDPOINT,
+    endpoint:
+      process.env.LOGTAIL_ENDPOINT ||
+      "https://s1250072.eu-nbg-2.betterstackdata.com",
   },
   sensitiveFields: [
     "password",
@@ -38,26 +40,18 @@ const defaultOptions: LoggerOptions = {
 /**
  * Create the context format to add context from AsyncLocalStorage
  */
-// Create a format function that adds context from AsyncLocalStorage
-function createContextFormat() {
-  // Create a function that will be our format
-  const format = winston.format.combine();
-
-  // Override the transform method
-  const originalTransform = format.transform;
-  format.transform = function (info, opts) {
-    const context = contextManager.getContext();
-    if (context) {
-      info = { ...info, ...context };
-    }
-    return originalTransform ? originalTransform.call(this, info, opts) : info;
-  };
-
-  return format;
-}
-
-// Create the context format
-export const contextFormat = createContextFormat();
+// This directly creates the format object instead of returning a function
+export const contextFormat = winston.format((info) => {
+  const context = contextManager.getContext();
+  if (context) {
+    // Add context data to log entry
+    return {
+      ...info,
+      ...context,
+    };
+  }
+  return info;
+})();
 
 /**
  * Create formatter for development logs
@@ -160,7 +154,7 @@ export function createLogger(
       ...mergedOptions.defaultMeta,
     },
     format: winston.format.combine(
-      contextFormat, // Use the pre-created format
+      contextFormat,
       winston.format.timestamp({
         format: "YYYY-MM-DD HH:mm:ss.SSS",
       }),

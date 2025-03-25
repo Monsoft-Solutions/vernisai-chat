@@ -5,14 +5,15 @@
 // Export all types
 export * from "./types";
 
-// Export core functionality
+// Export core functionality (where the correct createContextFormat is defined)
 export * from "./core/logger";
 export * from "./core/context";
 export * from "./core/metrics";
 
 // Export utilities
 export * from "./utils/sanitizer";
-export * from "./utils/formatters";
+// Export only the functions we need from formatters, not including its createContextFormat
+export { createConsoleFormat, createJsonFormat } from "./utils/formatters";
 
 // Export transports
 export * from "./transports/console";

@@ -1,7 +1,7 @@
 {
   "private": false,
   "scripts": {
-    "build": "turbo run build",
+    "build": "npm run format && turbo run build",
     "dev": "npm run build && concurrently \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:proxy\"",
     "dev:web": "turbo run dev --filter web",
     "dev:api": "npm run build --workspace=@monsoft/vernisai-config && turbo run dev --filter @vernisai/api",
@@ -15,7 +15,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
-    "validate": "npm run lint && npm run format:check && npm run build",
+    "validate": "npm run format && npm run lint && npm run format:check && npm run build",
     "prepare": "husky",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
