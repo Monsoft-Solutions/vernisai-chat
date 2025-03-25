@@ -10,14 +10,9 @@ import {
   ToolSelector,
   TestInterface,
   Button,
-  AgentTool,
 } from "@vernisai/ui";
-import {
-  mockTools,
-  mockModels,
-  mockTestMessages,
-  mockAgentTemplates,
-} from "../mock/agentBuilderData";
+import { trpc } from "../utils/trpc";
+import type { Tool, TestMessage, AgentTemplate } from "@vernisai/types";
 
 export const AgentBuilderForm: React.FC = () => {
   // Basic information state
@@ -28,18 +23,39 @@ export const AgentBuilderForm: React.FC = () => {
   // Capabilities state
   const [systemPrompt, setSystemPrompt] = useState("");
   const [selectedModelId, setSelectedModelId] = useState("");
-  const [selectedTools, setSelectedTools] = useState<AgentTool[]>([]);
+  const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
 
   // Testing state
-  const [testMessages, setTestMessages] = useState(mockTestMessages);
+  const [testMessages, setTestMessages] = useState<TestMessage[]>([]);
   const [isRunningTest, setIsRunningTest] = useState(false);
+
+  // Fetch data using tRPC
+  const { data: tools, isLoading: isToolsLoading } =
+    trpc.dashboard.getTools.useQuery();
+  const { data: models, isLoading: isModelsLoading } =
+    trpc.dashboard.getModels.useQuery();
+  const { data: testMessageData, isLoading: isTestMessagesLoading } =
+    trpc.dashboard.getTestMessages.useQuery();
+  const { data: templates, isLoading: isTemplatesLoading } =
+    trpc.dashboard.getAgentTemplates.useQuery();
+
+  // Set initial test messages when data is loaded
+  React.useEffect(() => {
+    if (
+      testMessageData &&
+      testMessageData.length > 0 &&
+      testMessages.length === 0
+    ) {
+      setTestMessages(testMessageData);
+    }
+  }, [testMessageData, testMessages.length]);
 
   // Form validation
   const isFormValid = name.trim() && systemPrompt.trim() && selectedModelId;
 
   // Handle tool selection
   const handleSelectTool = (toolId: string) => {
-    const tool = mockTools.find((t) => t.id === toolId);
+    const tool = tools?.find((t: Tool) => t.id === toolId);
     if (tool) {
       setSelectedTools([...selectedTools, tool]);
     }
@@ -55,9 +71,9 @@ export const AgentBuilderForm: React.FC = () => {
     setIsRunningTest(true);
 
     // Add user message
-    const userMessage = {
+    const userMessage: TestMessage = {
       id: Date.now().toString(),
-      role: "user" as const,
+      role: "user",
       content,
       timestamp: new Date(),
     };
@@ -66,9 +82,9 @@ export const AgentBuilderForm: React.FC = () => {
 
     // Simulate assistant response after a delay
     setTimeout(() => {
-      const assistantMessage = {
+      const assistantMessage: TestMessage = {
         id: (Date.now() + 1).toString(),
-        role: "assistant" as const,
+        role: "assistant",
         content: `This is a simulated response to: "${content}"`,
         timestamp: new Date(),
       };
@@ -80,7 +96,9 @@ export const AgentBuilderForm: React.FC = () => {
 
   // Handle template selection
   const handleSelectTemplate = (templateId: string) => {
-    const template = mockAgentTemplates.find((t) => t.id === templateId);
+    if (!templates) return;
+
+    const template = templates.find((t: AgentTemplate) => t.id === templateId);
     if (template) {
       setName(template.name);
       setDescription(template.description);
@@ -88,12 +106,24 @@ export const AgentBuilderForm: React.FC = () => {
       setSelectedModelId(template.model);
 
       // Set recommended tools
-      const tools = mockTools.filter((tool) =>
-        template.recommendedTools.includes(tool.id),
-      );
-      setSelectedTools(tools);
+      if (tools) {
+        const selectedTools = tools.filter((tool: Tool) =>
+          template.recommendedTools.includes(tool.id),
+        );
+        setSelectedTools(selectedTools);
+      }
     }
   };
+
+  // Loading state
+  if (
+    isToolsLoading ||
+    isModelsLoading ||
+    isTestMessagesLoading ||
+    isTemplatesLoading
+  ) {
+    return <div className="p-6 text-center">Loading agent builder data...</div>;
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-10">
@@ -131,7 +161,7 @@ export const AgentBuilderForm: React.FC = () => {
           Start with a Template (Optional)
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {mockAgentTemplates.map((template) => (
+          {templates?.map((template: AgentTemplate) => (
             <div
               key={template.id}
               className={`border rounded-md p-4 cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors ${
@@ -200,72 +230,81 @@ export const AgentBuilderForm: React.FC = () => {
             checked={isPublic}
             onCheckedChange={setIsPublic}
           />
-          <div>
-            <Label htmlFor="public" className="text-gray-700 cursor-pointer">
-              Make this agent available to all organization members
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              When enabled, all members of your organization can view and use
-              this agent
-            </p>
-          </div>
+          <Label htmlFor="public" className="font-medium text-sm text-gray-700">
+            Make this agent public
+          </Label>
+          <p className="text-xs text-muted-foreground ml-1">
+            Public agents are visible to all members of your organization
+          </p>
         </div>
       </InfoCard>
 
-      {/* Capabilities Section */}
+      {/* Agent Capabilities Section */}
       <InfoCard
         title={
           <div className="flex items-center">
             <span className="flex items-center justify-center rounded-full bg-primary/10 text-primary w-6 h-6 mr-2 text-sm">
               3
             </span>
-            Capabilities
+            Agent Capabilities
           </div>
         }
       >
-        <div className="space-y-8">
-          <div className="bg-muted/10 rounded-md p-5 border border-muted">
+        <div className="space-y-6">
+          <div>
+            <Label htmlFor="system-prompt" className="text-gray-700 block mb-2">
+              System Prompt <span className="text-red-500">*</span>
+            </Label>
             <SystemPromptEditor
               value={systemPrompt}
               onChange={setSystemPrompt}
-              onRequestSuggestions={() => console.log("Request suggestions")}
             />
             {!systemPrompt && (
               <p className="text-xs text-red-500 mt-1">
                 System prompt is required
               </p>
             )}
+            <p className="text-xs text-muted-foreground mt-2">
+              The system prompt establishes your agent's role, capabilities, and
+              constraints.
+            </p>
           </div>
 
-          <div className="bg-muted/10 rounded-md p-5 border border-muted">
-            <ModelSelector
-              models={mockModels}
-              selectedModelId={selectedModelId}
-              onSelectModel={setSelectedModelId}
-            />
-            {!selectedModelId && (
-              <p className="text-xs text-red-500 mt-1">Please select a model</p>
-            )}
+          <div>
+            <Label htmlFor="model" className="text-gray-700 block mb-2">
+              Model <span className="text-red-500">*</span>
+            </Label>
+            <div className="bg-muted/10 rounded-md p-5 border border-muted">
+              <ModelSelector
+                models={models || []}
+                selectedModelId={selectedModelId}
+                onSelectModel={setSelectedModelId}
+              />
+              {!selectedModelId && (
+                <p className="text-xs text-red-500 mt-1">
+                  Model selection is required
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="bg-muted/10 rounded-md p-5 border border-muted">
-            <h3 className="text-base font-medium mb-4 text-gray-700">
-              Agent Tools
-            </h3>
-            <ToolSelector
-              availableTools={mockTools}
-              selectedTools={selectedTools}
-              onSelectTool={handleSelectTool}
-              onRemoveTool={handleRemoveTool}
-              onConfigureTool={(toolId, config) =>
-                console.log("Configure tool", toolId, config)
-              }
-            />
+          <div>
+            <Label htmlFor="tools" className="text-gray-700 block mb-2">
+              Tools
+            </Label>
+            <div className="bg-muted/10 rounded-md p-5 border border-muted">
+              <ToolSelector
+                availableTools={tools || []}
+                selectedTools={selectedTools}
+                onSelectTool={handleSelectTool}
+                onRemoveTool={handleRemoveTool}
+              />
+            </div>
           </div>
         </div>
       </InfoCard>
 
-      {/* Test Section */}
+      {/* Testing Section */}
       <InfoCard
         title={
           <div className="flex items-center">
@@ -276,7 +315,7 @@ export const AgentBuilderForm: React.FC = () => {
           </div>
         }
       >
-        <div className="bg-muted/10 rounded-md p-5 border border-muted">
+        <div className="bg-muted/10 rounded-lg border border-muted p-4">
           <TestInterface
             messages={testMessages}
             onSendMessage={handleSendMessage}
@@ -288,21 +327,9 @@ export const AgentBuilderForm: React.FC = () => {
       </InfoCard>
 
       {/* Action Buttons */}
-      <div className="sticky bottom-6 bg-white p-4 rounded-md shadow-md border flex justify-between items-center z-10">
-        <div className="text-sm text-muted-foreground">
-          {isFormValid
-            ? "Your agent is ready to be published"
-            : "Please complete all required fields marked with *"}
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline">Save Draft</Button>
-          <Button
-            disabled={!isFormValid}
-            className={isFormValid ? "animate-pulse" : ""}
-          >
-            Publish Agent
-          </Button>
-        </div>
+      <div className="flex justify-end space-x-4">
+        <Button variant="outline">Cancel</Button>
+        <Button disabled={!isFormValid}>Create Agent</Button>
       </div>
     </div>
   );

@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.25",
-    "drizzle-kit": "^0.20.13",
+    "drizzle-kit": "^0.19.1",
     "eslint": "^8.57.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",

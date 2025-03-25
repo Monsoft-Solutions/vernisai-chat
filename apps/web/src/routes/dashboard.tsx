@@ -6,18 +6,38 @@ import {
   UsageChart,
 } from "@vernisai/ui";
 import {
-  mockOrganizationInfo,
-  mockRecentConversations,
-  mockAgents,
-  mockUsageData,
-} from "../mock/dashboardData";
-import { PlusIcon, Search, ArrowRightIcon } from "lucide-react";
+  PlusIcon,
+  Search,
+  ArrowRightIcon,
+  MessageSquareText,
+  BarChart3,
+  Headset,
+  Code,
+  Bot,
+  Brain,
+  Pencil,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
+import { trpc } from "../utils/trpc";
+import type { ConversationSummary, Agent } from "@vernisai/types";
 
 // Define the Dashboard route
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
+
+// Map string icon names to Lucide components
+const iconMap: Record<string, LucideIcon> = {
+  MessageSquareText,
+  BarChart3,
+  Headset,
+  Code,
+  Bot,
+  Brain,
+  Search,
+  Pencil,
+};
 
 function Dashboard() {
   const [conversationFilter, setConversationFilter] = useState("all");
@@ -25,26 +45,61 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // Filter conversations based on the selected filter and search term
-  const filteredConversations = mockRecentConversations
-    .filter(
-      (conv) =>
-        searchTerm === "" ||
-        conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        conv.snippet.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .filter(
-      (conv) =>
-        conversationFilter === "all" ||
-        conv.model.toLowerCase().includes(conversationFilter),
+  // Fetch data using tRPC
+  const orgInfo = trpc.dashboard.getOrganizationInfo.useQuery();
+  const recentConversations = trpc.dashboard.getRecentConversations.useQuery();
+  const agents = trpc.dashboard.getAgents.useQuery();
+  const usageData = trpc.dashboard.getUsageData.useQuery();
+
+  // Loading state
+  if (
+    orgInfo.isLoading ||
+    recentConversations.isLoading ||
+    agents.isLoading ||
+    usageData.isLoading
+  ) {
+    return (
+      <div className="container mx-auto p-6 flex justify-center items-center h-screen">
+        Loading...
+      </div>
     );
+  }
+
+  // Error state
+  if (
+    orgInfo.isError ||
+    recentConversations.isError ||
+    agents.isError ||
+    usageData.isError
+  ) {
+    return (
+      <div className="container mx-auto p-6 flex justify-center items-center h-screen text-red-500">
+        Error loading dashboard data. Please try again.
+      </div>
+    );
+  }
+
+  // Filter conversations based on the selected filter and search term
+  const filteredConversations =
+    recentConversations.data
+      ?.filter(
+        (conv: ConversationSummary) =>
+          searchTerm === "" ||
+          conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          conv.snippet.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .filter(
+        (conv: ConversationSummary) =>
+          conversationFilter === "all" ||
+          conv.model.toLowerCase().includes(conversationFilter),
+      ) || [];
 
   // Enhanced agent filtering with case-insensitive matching
   const filteredAgents =
     agentFilter === "all"
-      ? mockAgents
-      : mockAgents.filter((agent) =>
-          agent.capabilities.some((cap) =>
+      ? agents.data || []
+      : (agents.data || []).filter((agent: Agent) =>
+          agent.capabilities.some((cap: string) =>
             cap.toLowerCase().includes(agentFilter.toLowerCase()),
           ),
         );
@@ -57,8 +112,8 @@ function Dashboard() {
           <div>
             <h1 className="text-2xl font-semibold mb-2">Welcome back!</h1>
             <p className="text-text-secondary">
-              You have {mockRecentConversations.length} recent conversations and{" "}
-              {mockAgents.length} agents available.
+              You have {recentConversations.data?.length || 0} recent
+              conversations and {agents.data?.length || 0} agents available.
             </p>
           </div>
           <div className="flex gap-2">
@@ -82,11 +137,11 @@ function Dashboard() {
         {/* Organization Information */}
         <div className="md:col-span-1">
           <OrganizationInfoCard
-            name={mockOrganizationInfo.name}
-            activeUsers={mockOrganizationInfo.activeUsers}
-            totalUsers={mockOrganizationInfo.totalUsers}
-            subscriptionPlan={mockOrganizationInfo.subscriptionPlan}
-            usagePercent={mockOrganizationInfo.usagePercent}
+            name={orgInfo.data?.name || ""}
+            activeUsers={orgInfo.data?.activeUsers || 0}
+            totalUsers={orgInfo.data?.totalUsers || 0}
+            subscriptionPlan={orgInfo.data?.subscriptionPlan || "Free"}
+            usagePercent={orgInfo.data?.usagePercent || 0}
           />
 
           {/* Quick Actions */}
@@ -120,7 +175,7 @@ function Dashboard() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConversations.map((conversation) => (
+            {filteredConversations.map((conversation: ConversationSummary) => (
               <ConversationCard
                 key={conversation.id}
                 id={conversation.id}
@@ -142,7 +197,7 @@ function Dashboard() {
               </div>
             )}
           </div>
-          {mockRecentConversations.length > 3 && (
+          {(recentConversations.data?.length || 0) > 3 && (
             <div className="mt-4 text-center">
               <button
                 className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mx-auto"
@@ -185,7 +240,7 @@ function Dashboard() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {filteredAgents.map((agent) => (
+            {filteredAgents.map((agent: Agent) => (
               <AgentCard
                 key={agent.id}
                 id={agent.id}
@@ -193,17 +248,11 @@ function Dashboard() {
                 description={agent.description}
                 capabilities={agent.capabilities}
                 avatarUrl={agent.avatarUrl}
-                icon={agent.icon}
+                icon={agent.icon ? iconMap[agent.icon] : undefined}
                 onStartConversation={() => {
                   navigate({
                     to: "/chat",
                     search: { agent: agent.id },
-                  });
-                }}
-                onViewDetails={() => {
-                  navigate({
-                    to: "/agent/$id",
-                    params: { id: agent.id },
                   });
                 }}
               />
@@ -214,23 +263,31 @@ function Dashboard() {
               </div>
             )}
           </div>
-          {mockAgents.length > 4 && (
-            <div className="mt-4 text-center">
-              <button
-                className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mx-auto"
-                onClick={() => navigate({ to: "/agent" })}
-                aria-label="View all agents"
-              >
-                View all agents <ArrowRightIcon size={14} />
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Usage Statistics */}
+        {/* Usage Chart */}
         <div>
-          <h2 className="text-xl font-medium mb-4">Usage Statistics</h2>
-          <UsageChart data={mockUsageData} title="Message Usage" />
+          <h2 className="text-xl font-medium mb-4">Usage This Month</h2>
+          <div className="bg-white p-4 rounded-lg border border-border-default">
+            <UsageChart data={usageData.data || []} title="Message Usage" />
+          </div>
+          <div className="mt-4 text-sm text-text-tertiary">
+            <p>
+              You've used{" "}
+              <span className="font-medium text-text-primary">
+                {orgInfo.data?.usagePercent || 0}%
+              </span>{" "}
+              of your monthly limit.
+            </p>
+            <div className="w-full bg-background-tertiary rounded-full h-2 mt-2">
+              <div
+                className="bg-primary h-2 rounded-full"
+                style={{
+                  width: `${orgInfo.data?.usagePercent || 0}%`,
+                }}
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

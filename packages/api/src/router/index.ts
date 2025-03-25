@@ -6,6 +6,8 @@ import { messageRouter } from "./message";
 import { agentRouter } from "./agent";
 import { billingRouter } from "./billing";
 import { testRouter } from "./test";
+import { dashboardRouter } from "./dashboard";
+import { chatRouter } from "./chat";
 
 /**
  * Main application router that combines all sub-routers
@@ -18,6 +20,8 @@ export const appRouter = router({
   agent: agentRouter,
   billing: billingRouter,
   test: testRouter,
+  dashboard: dashboardRouter,
+  chat: chatRouter,
 });
 
 /**

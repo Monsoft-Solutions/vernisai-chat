@@ -1,0 +1,23 @@
+{
+  "name": "@vernisai/types",
+  "version": "0.1.0",
+  "description": "Shared TypeScript types for VernisAI",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf .turbo node_modules dist",
+    "lint": "eslint src/"
+  },
+  "devDependencies": {
+    "@vernisai/eslint-config": "*",
+    "@vernisai/typescript-config": "*",
+    "eslint": "^8.56.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
